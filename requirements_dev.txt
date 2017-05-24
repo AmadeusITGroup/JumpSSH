@@ -1,0 +1,4 @@
+paramiko
+docker-py>=1.10.6
+pytest>=3.0.4
+pytest-cov>=2.4.0
