@@ -1,3 +1,8 @@
+.. image:: https://secure.travis-ci.org/AmadeusITGroup/JumpSSH.png
+    :target: http://travis-ci.org/AmadeusITGroup/JumpSSH
+
+.. image:: https://coveralls.io/repos/AmadeusITGroup/JumpSSH/badge.png?branch=master
+    :target: https://coveralls.io/r/AmadeusITGroup/JumpSSH?branch=master
 
 `JumpSSH` is a module for Python 2.6+/3.3+ that can be used to run commands on remote servers through a gateway.
 
