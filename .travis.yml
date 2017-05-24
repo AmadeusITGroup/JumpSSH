@@ -5,27 +5,23 @@ language: python
 services:
   - docker
 
-python:
-  - "2.6"
-  - "2.7"
-  - "3.3"
-  - "3.4"
-  - "3.5"
-#  - "3.5-dev" # 3.5 development branch
-  - "3.6"
-#  - "3.6-dev" # 3.6 development branch
-#  - "3.7-dev" # 3.7 development branch
-#  - "nightly" # currently points to 3.7-dev
+python: 3.6
+env:
+ - TOX_ENV=flake8
+ - TOX_ENV=docs
+ - TOX_ENV=py26
+ - TOX_ENV=py27
+ - TOX_ENV=py33
+ - TOX_ENV=py34
+ - TOX_ENV=py35
+ - TOX_ENV=py36
+ - TOX_ENV=pypy
 
-# command to install dependencies
 install:
-  - pip install -r requirements_dev.txt
-  - pip install coveralls
+ - pip install tox coveralls
 
-# command to run tests
 script:
-  coverage run --source=jumpssh setup.py test
+  - tox -e $TOX_ENV
 
 after_success:
-  coveralls
-
+  - coveralls
