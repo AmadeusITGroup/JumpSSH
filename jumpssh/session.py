@@ -10,7 +10,6 @@ import random
 import re
 import select
 import string
-import sys
 import time
 
 import paramiko
@@ -224,10 +223,13 @@ class SSHSession(object):
         user = self.username
 
         # check type of command parameter is valid
-        string_types = basestring if sys.version_info[0] < 3 else str
+        try:
+            string_type = basestring
+        except NameError:
+            string_type = str
         if isinstance(cmd, list):
             cmd = " && ".join(cmd)
-        elif not isinstance(cmd, string_types):
+        elif not isinstance(cmd, string_type):
             raise TypeError("Invalid type for cmd argument '%s'" % type(cmd))
 
         my_cmd = cmd

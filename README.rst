@@ -1,9 +1,29 @@
-.. image:: https://secure.travis-ci.org/AmadeusITGroup/JumpSSH.png
+=======
+JumpSSH
+=======
+
+.. image:: https://secure.travis-ci.org/AmadeusITGroup/JumpSSH.svg?branch=master
     :target: http://travis-ci.org/AmadeusITGroup/JumpSSH
 
-.. image:: https://coveralls.io/repos/AmadeusITGroup/JumpSSH/badge.png?branch=master
+.. image:: https://coveralls.io/repos/AmadeusITGroup/JumpSSH/badge.svg?branch=master
     :target: https://coveralls.io/r/AmadeusITGroup/JumpSSH?branch=master
 
+.. image:: https://badge.fury.io/py/jumpssh.svg
+    :target: https://badge.fury.io/py/jumpssh
+
+.. image:: https://readthedocs.org/projects/jumpssh/badge?version=latest
+    :target: https://jumpssh.readthedocs.io?badge=latest
+
+
+:JumpSSH:          Python module to run commands on remote servers
+:Copyright:        Copyright (c) 2017 Amadeus sas
+:Maintainer:       Thibaud Castaing <thibaud.castaing@amadeus.com>
+:License:          `MIT <https://github.com/AmadeusITGroup/JumpSSH/blob/master/LICENSE>`_
+:Documentation:    https://jumpssh.readthedocs.io
+:Development:      https://github.com/AmadeusITGroup/JumpSSH
+
+What
+----
 `JumpSSH` is a module for Python 2.6+/3.3+ that can be used to run commands on remote servers through a gateway.
 
 It is based on `paramiko library <http://www.paramiko.org>`_.
@@ -21,7 +41,6 @@ So, why another python library to setup remote server through ssh ? Here is a qu
    Moreover, support of bastion host is done with modification of local ssh config to use ProxyCommand, and this is needed for each bastion host.
  - Fabric: use of jump server is much easier than Ansible thanks to 'env.gateway' parameter, but does not allow jump through several servers.
    Moreover, you don't have a single module that support both python 2.6 and more recent versions (2 non compatible python modules)
-
 
 Installation
 ------------
