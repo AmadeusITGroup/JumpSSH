@@ -10,17 +10,17 @@ services:
 
 python: 3.6
 env:
- - TOX_ENV=flake8
- - TOX_ENV=docs
- - TOX_ENV=py26
- - TOX_ENV=py27
- - TOX_ENV=py33
- - TOX_ENV=py34
- - TOX_ENV=py35
- - TOX_ENV=py36
- - TOX_ENV=pypy
+  matrix:
+    - TOX_ENV=flake8
+    - TOX_ENV=docs
+    - TOX_ENV=py26
+    - TOX_ENV=py27
+    - TOX_ENV=py33
+    - TOX_ENV=py34
+    - TOX_ENV=py35
+    - TOX_ENV=py36
+    - TOX_ENV=pypy
 
-env:
   global:
     # GITHUB_TOKEN
     - secure: "Br8mZxiBxGBH34FRGIxkXsYkPLL1tIVf1SSpvgOEYWGbvO910+UAnhpow+eufS9zqVOYUQIUA0PfEVd2EoCIgf6WHNsLOJRrEMkOyxd2SCgXsVaZu1f1TszfjCHEcAard0mwn2KrNEyR0DnB6xujHiY+O0LIdz7yicwh1BQd43wZaOYOpy3ohs969OOZ2Le6rfOMHCJY1Bsa018bwVwUB8Re3tAqsh+TCMVwWxhXfvZdTXe7kOMsjwh1a3TbcuIFFvfP/FxDqfJ0NJ1OLUmxvGVLXAnZHamPBgifSDQcu/BkxNcVQbLH3Pb7lo3Nx1ywr+LbXynC//xYQTn+0Ky9dSUrTZ+RDyRzvDxXs7fGttA2T67pBqWN8WUtZ5HXKr1GJa3WsCPzMgXegBfY1qiMvFRbRmjnV118xeOtOiLm1HHq4imxVGyLV23IvK9WBvZknouWHqWDYPWi5AbHQZ0Wk1oovIIS+Z3uDei5I77mzIk1D73wkgc0vNsNKdkFNMPMj94iRW945M768Ef4Qb0Oz/VWmHEsuMJycx3A8enXjC/tw14AVJKDJqlcoI/2UZZ5fBEIpOaSfBc6sQxVg0OgJ9/3aMF0RAYs2048jX02raoCKNVGBv/PPTop5hfQvdZ13ifkugPUnWszFXisa7VpP8AQklrFBU81jGJCNfPAl+g="
@@ -29,6 +29,7 @@ env:
     - secure: "qv53nBqeaawK1/ZOj5IyLzqA/QsIQnPkuDa0D75i9jqUgSnNhCMMSoBUAqwikDQYJ+TO6+xW0GjcAKZJ/eYaWN+++DvSopv+WCwKoRKsCJUpcF8XGnfes9iux+8eYYCL0uQRtiJdbJ/I50Xp6jrOrF+98b8CGwa6DAfqxNu4FyteKe/dswtOlbH/2iBN5tJTh5/3pKIbhrzuRznbqqa7HeBU9OrMAEz7t4kJEO+TDV7WkOGQPntL/t1CSPla7w2PeNfWYVm1DiSTFaCuSmhYqA5gX+uCiPgC1aAXkv3NxlrkAIOXbj1LfUKR6TePYk6dz+e+thgnT7X2ohA/vMDOngoDTTK+2uycd5qS7PTENfc3628REANIiJUXWtUZRb3hPeRQFoj7rwDvHqtlj56RK9r2uz1M5cVX+v9ZtfS1JSYeK/iG6BDceYOSRK8Ih6QZUiJFdzMrYiHKUony1VkpBZ0pOrG5ph0dclwFaLGSKn6usyvScUdFbtxUm6JT4XGvvLAEASz4+UVOvSMF384BtDCRR/hc0rY2IH49liwcm5RSJ6pGKMZEfKZyYG5BQE6jpD409WUqR4vNuJbbAyRWQ5aTruLbshIBsVuUJlM2CmG7wBmkkMg2P4PB1HwlFn6ZEfy+j5zB0bpCZQKeW1KcukZRrKBHUpQYRvox/btarL8="
     #
     - SONAR_HOST_URL="https://sonarcloud.io"
+    - SONAR_ORGA="default"
 
 install:
  - pip install tox coveralls

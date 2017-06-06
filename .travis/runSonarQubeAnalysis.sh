@@ -12,7 +12,7 @@ set -e
 
 # We don't want to run X times the same analysis because of the matrix configuration
 if [ "${TOX_ENV}" != "pypy" ]; then
-	echo "Duplicated run detected, skipping the SonarQube analysis..."
+	echo "Duplicated run detected, skipping the SonarQube analysis... (currently running ${TOX_ENV})"
 	exit 0
 fi
 
@@ -24,7 +24,7 @@ if [ "${TRAVIS_BRANCH}" = "master" ] && [ "${TRAVIS_PULL_REQUEST}" = "false" ]; 
 	#
 	# Analysis is done only on master so that build of branches don't push analyses to the same project and therefore "pollute" the results
 	echo "Starting analysis by SonarQube..."
-	sonar-scanner -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_TOKEN
+	sonar-scanner -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_TOKEN -Dsonar.organization=$SONAR_ORGA
 
 
 elif [ "${TRAVIS_PULL_REQUEST}" != "false" ] && [ -n "${GITHUB_TOKEN-}" ]; then
@@ -38,6 +38,7 @@ elif [ "${TRAVIS_PULL_REQUEST}" != "false" ] && [ -n "${GITHUB_TOKEN-}" ]; then
 	sonar-scanner \
 		-Dsonar.host.url=$SONAR_HOST_URL \
 		-Dsonar.login=$SONAR_TOKEN \
+		-Dsonar.organization=$SONAR_ORGA \
 		-Dsonar.analysis.mode=preview \
 		-Dsonar.github.oauth=$GITHUB_TOKEN \
 		-Dsonar.github.repository=$TRAVIS_REPO_SLUG \
