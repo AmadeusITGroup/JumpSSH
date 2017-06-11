@@ -182,6 +182,8 @@ class SSHSession(object):
         if hasattr(self, 'ssh_client') and self.is_active():
             logger.info("Closing connection to '%s:%s'..." % (self.host, self.port))
             self.ssh_client.close()
+            # clear local host keys as they may not be valid for next connection
+            self.ssh_client.get_host_keys().clear()
 
     def run_cmd(
             self,
