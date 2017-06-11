@@ -37,7 +37,7 @@ install:
 
 script:
   - tox -e $TOX_ENV
-  - ./.travis/runSonarQubeAnalysis.sh
+#  - ./.travis/runSonarQubeAnalysis.sh
 
 after_success:
   - coveralls
