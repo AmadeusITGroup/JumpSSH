@@ -26,7 +26,6 @@ if [ "${TRAVIS_BRANCH}" = "master" ] && [ "${TRAVIS_PULL_REQUEST}" = "false" ]; 
 	# Analysis is done only on master so that build of branches don't push analyses to the same project and therefore "pollute" the results
 	echo "Starting analysis by SonarQube..."
 	sonar-scanner
-		-Dsonar.host.url=$SONAR_HOST_URL \
 		-Dsonar.organization=$SONAR_ORGA \
 		-Dsonar.login=$SONAR_TOKEN
 
@@ -39,7 +38,6 @@ elif [ "${TRAVIS_PULL_REQUEST}" != "false" ] && [ -n "${GITHUB_TOKEN-}" ]; then
 	# That's why the analysis does not need to be executed if the variable GITHUB_TOKEN is not defined.
 	echo "Starting Pull Request analysis by SonarQube..."
 	sonar-scanner \
-		-Dsonar.host.url=$SONAR_HOST_URL \
 		-Dsonar.organization=$SONAR_ORGA \
 		-Dsonar.login=$SONAR_TOKEN \
 		-Dsonar.analysis.mode=preview \
