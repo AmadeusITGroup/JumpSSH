@@ -13,7 +13,8 @@ addons:
   sonarqube:
     organization: "amadeus-7of9-github"
     token:
-      secure: "UyK87awinvxf+rTLkwkGfibO/hHymMtg8lgbLOEyXYFuvSJLPRwyih9Od62g0W1Zub3RoosWaDsQALU6CeFLYvKUyCOJIC9olCB9yrZT3H3NoaJNAyK9N2PCQNSzNtslh2K07rzPQUbyKESO3Y9MkWsKk49ozLxPJ7TKsW+1k9s6ARhHeZPAUmDFSdADciFfBLa9tx/6XktuqG5bgTocrN3J0i3VJ1q9Z0cFRoKV4XYsc2qSfjg/f7lrZvGgPzAB8dadXWt72yaUk+5QTZOHce0zx/XroWzaBmXzdB3eDo93bc2tzKxNi3DG2+PTiwz4Z1GAas2jGmdtsooqxbpc25FrEMLN6QujjWh7TRXFGP6kjATOtqvO1n3pC0NtZOTRn9lT91oSql5kHjv6Isy3C9CO9JC5Ma43awykAp+vuBTSzxTT3y9xuJdCXNn1k7Jo3PEiZ/K2rzUfcW2k3ZFGoZpfJb6kyNAC21xIOxbBGqS99L8/anfpjegtTnJ24GbeP21phfofBCZVTCKJhITQjCJsg/EPPYkZGuzbA6KtN3bmScKrYX+SE3wCeUDpAJyDM85gUOfGF0OK2oq1SD4GFvD6z+vZ3h4aLZ9seRjE43P4aUWQRB5q9exnutowsuKQhyMjWeiR9GwqriGNQh5Mh2A0RmZ6EQ5kdsm62AwEY88="
+      secure: "HCrI3UKgzOMeOhSisYaVPdUUah+jLljut+8Wc+ZJsSeIBAIghZ0AFkRJlm3zJqJjZkHeNxf6BhCw6ZFM7vdnQrBtaIK6Zwh/0N3hcqqTcxbiDIudJ3Ez36NWnM5FXoulAP7LqqyUFiqLmHMf3s3WxfHatHaYS3gXCRBFGEL1kjvIREFp6iWy4qcDs/gxVunp6oeJ9vwgRCvk8vsUTM0PhkAm7l2CYA4i918vF7/6k1WHJc3igMQzA6AwnJ86oE9NIXvBQYEQMIhwb1uK0bknusm+72sW3Z7uW/EPj5z0uOcEhvGLk9Z/C5gmOiimCGvWZLuZXGAYme5x2NQHRUC88ilu+wOWLdQT8vxQiblPduk83IUuat8NEsFYHQ8f3xtS2kKF7y1n9CX9YgfY+nSznhyxV3o+pXiTE5wRbn2Tq8gxsTSYD4nQd2dnzTJzlmWCBBFsj1gqUUY48RN4E4UCYAfPG2lyCd8izPYdpYMYLN86KfRgNnojojkWux+RIhDTjW+srKZ5/awXh3FxFkKA8mKzTc09UMraMwOBI78oqRYmk8T2y2EU6adsjDbAcTNM+mNwwv1virVu6sFYk6zlUtdHkCpYRVCMSG3XMB4/VZSl50UvuL60p/3tTNcWZhYLAx7KmM71vXEL7xd8kYqC5j/ELlYhjzM7zqswxQROMnA="
+      # SONAR_TOKEN as is (/!\ no VAR= /!\)
 
 python: 3.6
 env:
@@ -39,7 +40,7 @@ install:
 
 script:
   - tox -e $TOX_ENV
-  - sonar-scanner
+  - ./.travis/runSonarQubeAnalysis.sh
 
 after_success:
   - coveralls
