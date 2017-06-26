@@ -25,7 +25,7 @@ if [ "${TRAVIS_BRANCH}" = "master" ] && [ "${TRAVIS_PULL_REQUEST}" = "false" ]; 
 	#
 	# Analysis is done only on master so that build of branches don't push analyses to the same project and therefore "pollute" the results
 	echo "Starting analysis by SonarQube..."
-	sonar-scanner
+	sonar-scanner \
 		-Dsonar.organization=$SONAR_ORGA \
 		-Dsonar.login=$SONAR_TOKEN
 
