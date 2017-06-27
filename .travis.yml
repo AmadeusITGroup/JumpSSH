@@ -11,7 +11,7 @@ services:
 
 addons:
   sonarqube:
-    organization: "amadeus-7of9-github"
+    organization: "1a"
     token:
       secure: "HCrI3UKgzOMeOhSisYaVPdUUah+jLljut+8Wc+ZJsSeIBAIghZ0AFkRJlm3zJqJjZkHeNxf6BhCw6ZFM7vdnQrBtaIK6Zwh/0N3hcqqTcxbiDIudJ3Ez36NWnM5FXoulAP7LqqyUFiqLmHMf3s3WxfHatHaYS3gXCRBFGEL1kjvIREFp6iWy4qcDs/gxVunp6oeJ9vwgRCvk8vsUTM0PhkAm7l2CYA4i918vF7/6k1WHJc3igMQzA6AwnJ86oE9NIXvBQYEQMIhwb1uK0bknusm+72sW3Z7uW/EPj5z0uOcEhvGLk9Z/C5gmOiimCGvWZLuZXGAYme5x2NQHRUC88ilu+wOWLdQT8vxQiblPduk83IUuat8NEsFYHQ8f3xtS2kKF7y1n9CX9YgfY+nSznhyxV3o+pXiTE5wRbn2Tq8gxsTSYD4nQd2dnzTJzlmWCBBFsj1gqUUY48RN4E4UCYAfPG2lyCd8izPYdpYMYLN86KfRgNnojojkWux+RIhDTjW+srKZ5/awXh3FxFkKA8mKzTc09UMraMwOBI78oqRYmk8T2y2EU6adsjDbAcTNM+mNwwv1virVu6sFYk6zlUtdHkCpYRVCMSG3XMB4/VZSl50UvuL60p/3tTNcWZhYLAx7KmM71vXEL7xd8kYqC5j/ELlYhjzM7zqswxQROMnA="
       # SONAR_TOKEN as is (/!\ no VAR= /!\)
