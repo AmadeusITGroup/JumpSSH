@@ -37,7 +37,6 @@ elif [ "${TRAVIS_PULL_REQUEST}" != "false" ] && [ -n "${GITHUB_TOKEN-}" ]; then
 	echo "Starting Pull Request analysis by SonarQube..."
 	sonar-scanner \
 		-Dsonar.analysis.mode=preview \
-		-Dsonar.github.oauth=$GITHUB_TOKEN \
 		-Dsonar.github.repository=$TRAVIS_REPO_SLUG \
 		-Dsonar.github.pullRequest=$TRAVIS_PULL_REQUEST
 
