@@ -25,9 +25,7 @@ if [ "${TRAVIS_BRANCH}" = "master" ] && [ "${TRAVIS_PULL_REQUEST}" = "false" ]; 
 	#
 	# Analysis is done only on master so that build of branches don't push analyses to the same project and therefore "pollute" the results
 	echo "Starting analysis by SonarQube..."
-	sonar-scanner \
-		-Dsonar.organization=$SONAR_ORGA \
-		-Dsonar.login=$SONAR_TOKEN
+	sonar-scanner
 
 elif [ "${TRAVIS_PULL_REQUEST}" != "false" ] && [ -n "${GITHUB_TOKEN-}" ]; then
 	# => This will analyse the PR and display found issues as comments in the PR, but it won't push results to the SonarQube server
@@ -38,8 +36,6 @@ elif [ "${TRAVIS_PULL_REQUEST}" != "false" ] && [ -n "${GITHUB_TOKEN-}" ]; then
 	# That's why the analysis does not need to be executed if the variable GITHUB_TOKEN is not defined.
 	echo "Starting Pull Request analysis by SonarQube..."
 	sonar-scanner \
-		-Dsonar.organization=$SONAR_ORGA \
-		-Dsonar.login=$SONAR_TOKEN \
 		-Dsonar.analysis.mode=preview \
 		-Dsonar.github.oauth=$GITHUB_TOKEN \
 		-Dsonar.github.repository=$TRAVIS_REPO_SLUG \
