@@ -14,6 +14,15 @@ JumpSSH
 .. image:: https://readthedocs.org/projects/jumpssh/badge?version=latest
     :target: https://jumpssh.readthedocs.io?badge=latest
 
+.. image:: https://sonarcloud.io/api/badges/gate?key=amadeusitgroup_jumpssh&template=FLAT
+    :target: https://sonarcloud.io/dashboard?id=amadeusitgroup_jumpssh
+
+.. image:: https://sonarcloud.io/api/badges/measure?key=amadeusitgroup_jumpssh&metric=bugs&template=FLAT
+    :target: https://sonarcloud.io/dashboard?id=amadeusitgroup_jumpssh
+
+.. image:: https://sonarcloud.io/api/badges/measure?key=amadeusitgroup_jumpssh&metric=vulnerabilities&template=FLAT
+    :target: https://sonarcloud.io/dashboard?id=amadeusitgroup_jumpssh
+
 
 :JumpSSH:          Python module to run commands on remote servers
 :Copyright:        Copyright (c) 2017 Amadeus sas
