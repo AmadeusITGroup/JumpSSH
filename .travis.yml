@@ -6,6 +6,8 @@ sudo: required
 
 language: python
 
+cache: pip
+
 services:
   - docker
 
