@@ -126,7 +126,7 @@ class SSHSession(object):
                     # open a `direct-tcpip` channel passing
                     # the destination hostname:port and the local hostname:port
                     dest_addr = (self.host, self.port)
-                    local_addr = ('127.0.0.1', SSH_PORT)
+                    local_addr = ('localhost', SSH_PORT)
                     ssh_channel = self.proxy_transport.open_channel("direct-tcpip", dest_addr, local_addr)
                     hostname = 'localhost'
                     port = SSH_PORT
