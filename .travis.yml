@@ -20,26 +20,35 @@ addons:
     github_token:
       secure: "bm7Z0+qIbJ/j/bdRW/2NhqDdhQxmSq2lHDlde4QOu/wGi0nxsH8EdeB0Xo7Gn4jggjQnthXU/yNJ43xwRQk191eZ+vpGMKxiJIokcTPmd6ECtFGfwUnHFmFzmZwYQ4ehXpZA+kdqbz33gQrKqHz11ywn9t4p5Kt+WGGe2nTjmvXyryNUJj/jlxbcAFrUXSef31fKKsv9QvRpvtVSF1bOc/Yorb67mpNL06CwgA6lFAeLVB2V+ie6LdSociWf8I6cWv5n2gLPIzomlDXkJcq3Vmqk5U+oAPCvZQqqakzzvIueSP5IWp8YsVA41EFQWNU2cirsnvu78KbDwb2X6AY8rS7rXlYAip+Hst8yhlfhJKk/W2sI5kiITvgz6J7MKtmMVsDGYKExaslDifpFUfNoo6/s6gkMouqS6nZuDY6KybFgbL4dTjLtzmMpw1gQDJpVgwf+N6S/2atU2Suz+ukBCRh4WuE0c+FA29i5AVB3YUXmdG5d3CC6IqcmZ5R1DkIAE7pfharh/YRV47byEFcF5lMPY75hwdUjMQbI/k/w+XRLJTKllvGcbfUmZg7dFSsiK0OOoJV8iFfRXYSC4ropKNoNHonEo0FS3rDGN8+M8VrvX55r4/mHZK8dT5BxtYzPBNbrODsHLmQ6tKsEGgJCZym0+4E61M8goFPPoIgNXuI="
 
+os:
+  - linux
 
-python: 3.6
-env:
-  matrix:
-    - TOX_ENV=flake8
-    - TOX_ENV=docs
-    - TOX_ENV=py26
-    - TOX_ENV=py27
-    - TOX_ENV=py33
-    - TOX_ENV=py34
-    - TOX_ENV=py35
-    - TOX_ENV=py36
-    - TOX_ENV=pypy
+python:
+  - 2.6
+  - 2.7
+  - 3.3
+  - 3.4
+  - 3.5
+  - 3.6
+  - pypy-5.6.0
 
+matrix:
+  include:
+    - python: "3.6"
+      env: TOX_ENV=flake8
+    - python: "3.6"
+      env: TOX_ENV=docs
 
 install:
-  - pip install tox coveralls
+  - pip install tox-travis coveralls
 
 script:
-  - tox -e $TOX_ENV
+  # if custom env specified, use it else just use current environment parameters
+  - if [ -n "${TOX_ENV}" ]; then
+      tox -e $TOX_ENV;
+    else
+      tox;
+    fi
   - ./.travis/runSonarQubeAnalysis.sh
 
 after_success:

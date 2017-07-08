@@ -12,8 +12,8 @@ set -e
 
 
 # We don't want to run X times the same analysis because of the matrix configuration
-if [ "${TOX_ENV}" != "pypy" ]; then
-	echo "Duplicated run detected, skipping the SonarQube analysis... (currently running ${TOX_ENV})"
+if [ "${TRAVIS_PYTHON_VERSION}" != "pypy-5.6.0" ]; then
+	echo "Duplicated run detected, skipping the SonarQube analysis... (currently running ${TRAVIS_PYTHON_VERSION})"
 	exit 0
 fi
 
@@ -27,7 +27,7 @@ if [ "${TRAVIS_BRANCH}" = "master" ] && [ "${TRAVIS_PULL_REQUEST}" = "false" ]; 
 	echo "Starting analysis by SonarQube..."
 	sonar-scanner
 
-elif [ "${TRAVIS_PULL_REQUEST}" != "false" ] && [ -n "${GITHUB_TOKEN-}" ]; then
+elif [ "${TRAVIS_PULL_REQUEST}" != "false" ] && [ -n "${GITHUB_TOKEN}" ]; then
 	# => This will analyse the PR and display found issues as comments in the PR, but it won't push results to the SonarQube server
 	#
 	# For security reasons environment variables are not available on the pull requests
@@ -47,13 +47,13 @@ else
 	echo "No SonarQube anaysis necessary in this case (current branch: ${TRAVIS_BRANCH} & PR context: ${TRAVIS_PULL_REQUEST})..."
 
 	# It is useful to know what is the status of the secure entries (can explain why it was not started)
-	if [ -n "${GITHUB_TOKEN-}" ]; then
+	if [ -n "${GITHUB_TOKEN}" ]; then
 		echo "\t=> GITHUB_TOKEN is defined"
 	else
 		echo "\t=> GITHUB_TOKEN is NOT defined"
 	fi
 
-	if [ -n "${SONAR_TOKEN-}" ]; then
+	if [ -n "${SONAR_TOKEN}" ]; then
 		echo "\t=> SONAR_TOKEN is defined"
 	else
 		echo "\t=> SONAR_TOKEN is NOT defined"
