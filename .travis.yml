@@ -11,8 +11,10 @@ services:
 
 addons:
   apt:
+    sources:
+      - deadsnakes
     packages:
-      # python 2.6 not installed anymore in default images
+      # python 2.6 not installed anymore in base image
       - python2.6
   sonarcloud:
     organization: "1a"
