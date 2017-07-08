@@ -14,10 +14,16 @@ addons:
     packages:
       # python 2.6 not installed anymore in default images
       - python2.6
-  sonarqube:
-    organization: default
+  sonarcloud:
+    organization: "1a"
     token:
-      secure: qv53nBqeaawK1/ZOj5IyLzqA/QsIQnPkuDa0D75i9jqUgSnNhCMMSoBUAqwikDQYJ+TO6+xW0GjcAKZJ/eYaWN+++DvSopv+WCwKoRKsCJUpcF8XGnfes9iux+8eYYCL0uQRtiJdbJ/I50Xp6jrOrF+98b8CGwa6DAfqxNu4FyteKe/dswtOlbH/2iBN5tJTh5/3pKIbhrzuRznbqqa7HeBU9OrMAEz7t4kJEO+TDV7WkOGQPntL/t1CSPla7w2PeNfWYVm1DiSTFaCuSmhYqA5gX+uCiPgC1aAXkv3NxlrkAIOXbj1LfUKR6TePYk6dz+e+thgnT7X2ohA/vMDOngoDTTK+2uycd5qS7PTENfc3628REANIiJUXWtUZRb3hPeRQFoj7rwDvHqtlj56RK9r2uz1M5cVX+v9ZtfS1JSYeK/iG6BDceYOSRK8Ih6QZUiJFdzMrYiHKUony1VkpBZ0pOrG5ph0dclwFaLGSKn6usyvScUdFbtxUm6JT4XGvvLAEASz4+UVOvSMF384BtDCRR/hc0rY2IH49liwcm5RSJ6pGKMZEfKZyYG5BQE6jpD409WUqR4vNuJbbAyRWQ5aTruLbshIBsVuUJlM2CmG7wBmkkMg2P4PB1HwlFn6ZEfy+j5zB0bpCZQKeW1KcukZRrKBHUpQYRvox/btarL8=
+      secure: "HCrI3UKgzOMeOhSisYaVPdUUah+jLljut+8Wc+ZJsSeIBAIghZ0AFkRJlm3zJqJjZkHeNxf6BhCw6ZFM7vdnQrBtaIK6Zwh/0N3hcqqTcxbiDIudJ3Ez36NWnM5FXoulAP7LqqyUFiqLmHMf3s3WxfHatHaYS3gXCRBFGEL1kjvIREFp6iWy4qcDs/gxVunp6oeJ9vwgRCvk8vsUTM0PhkAm7l2CYA4i918vF7/6k1WHJc3igMQzA6AwnJ86oE9NIXvBQYEQMIhwb1uK0bknusm+72sW3Z7uW/EPj5z0uOcEhvGLk9Z/C5gmOiimCGvWZLuZXGAYme5x2NQHRUC88ilu+wOWLdQT8vxQiblPduk83IUuat8NEsFYHQ8f3xtS2kKF7y1n9CX9YgfY+nSznhyxV3o+pXiTE5wRbn2Tq8gxsTSYD4nQd2dnzTJzlmWCBBFsj1gqUUY48RN4E4UCYAfPG2lyCd8izPYdpYMYLN86KfRgNnojojkWux+RIhDTjW+srKZ5/awXh3FxFkKA8mKzTc09UMraMwOBI78oqRYmk8T2y2EU6adsjDbAcTNM+mNwwv1virVu6sFYk6zlUtdHkCpYRVCMSG3XMB4/VZSl50UvuL60p/3tTNcWZhYLAx7KmM71vXEL7xd8kYqC5j/ELlYhjzM7zqswxQROMnA="
+      # SONAR_TOKEN as is (/!\ no VAR= /!\)
+    
+    # Activating comments on PRs
+    github_token:
+      secure: "bm7Z0+qIbJ/j/bdRW/2NhqDdhQxmSq2lHDlde4QOu/wGi0nxsH8EdeB0Xo7Gn4jggjQnthXU/yNJ43xwRQk191eZ+vpGMKxiJIokcTPmd6ECtFGfwUnHFmFzmZwYQ4ehXpZA+kdqbz33gQrKqHz11ywn9t4p5Kt+WGGe2nTjmvXyryNUJj/jlxbcAFrUXSef31fKKsv9QvRpvtVSF1bOc/Yorb67mpNL06CwgA6lFAeLVB2V+ie6LdSociWf8I6cWv5n2gLPIzomlDXkJcq3Vmqk5U+oAPCvZQqqakzzvIueSP5IWp8YsVA41EFQWNU2cirsnvu78KbDwb2X6AY8rS7rXlYAip+Hst8yhlfhJKk/W2sI5kiITvgz6J7MKtmMVsDGYKExaslDifpFUfNoo6/s6gkMouqS6nZuDY6KybFgbL4dTjLtzmMpw1gQDJpVgwf+N6S/2atU2Suz+ukBCRh4WuE0c+FA29i5AVB3YUXmdG5d3CC6IqcmZ5R1DkIAE7pfharh/YRV47byEFcF5lMPY75hwdUjMQbI/k/w+XRLJTKllvGcbfUmZg7dFSsiK0OOoJV8iFfRXYSC4ropKNoNHonEo0FS3rDGN8+M8VrvX55r4/mHZK8dT5BxtYzPBNbrODsHLmQ6tKsEGgJCZym0+4E61M8goFPPoIgNXuI="
+
 
 python: 3.6
 env:
@@ -32,16 +38,13 @@ env:
     - TOX_ENV=py36
     - TOX_ENV=pypy
 
-  global:
-    # GITHUB_TOKEN
-    - secure: Br8mZxiBxGBH34FRGIxkXsYkPLL1tIVf1SSpvgOEYWGbvO910+UAnhpow+eufS9zqVOYUQIUA0PfEVd2EoCIgf6WHNsLOJRrEMkOyxd2SCgXsVaZu1f1TszfjCHEcAard0mwn2KrNEyR0DnB6xujHiY+O0LIdz7yicwh1BQd43wZaOYOpy3ohs969OOZ2Le6rfOMHCJY1Bsa018bwVwUB8Re3tAqsh+TCMVwWxhXfvZdTXe7kOMsjwh1a3TbcuIFFvfP/FxDqfJ0NJ1OLUmxvGVLXAnZHamPBgifSDQcu/BkxNcVQbLH3Pb7lo3Nx1ywr+LbXynC//xYQTn+0Ky9dSUrTZ+RDyRzvDxXs7fGttA2T67pBqWN8WUtZ5HXKr1GJa3WsCPzMgXegBfY1qiMvFRbRmjnV118xeOtOiLm1HHq4imxVGyLV23IvK9WBvZknouWHqWDYPWi5AbHQZ0Wk1oovIIS+Z3uDei5I77mzIk1D73wkgc0vNsNKdkFNMPMj94iRW945M768Ef4Qb0Oz/VWmHEsuMJycx3A8enXjC/tw14AVJKDJqlcoI/2UZZ5fBEIpOaSfBc6sQxVg0OgJ9/3aMF0RAYs2048jX02raoCKNVGBv/PPTop5hfQvdZ13ifkugPUnWszFXisa7VpP8AQklrFBU81jGJCNfPAl+g=
 
 install:
   - pip install tox coveralls
 
 script:
   - tox -e $TOX_ENV
-#  - ./.travis/runSonarQubeAnalysis.sh
+  - ./.travis/runSonarQubeAnalysis.sh
 
 after_success:
   - coveralls
@@ -51,7 +54,7 @@ deploy:
   - provider: pypi
     user: tcastaing
     password:
-      secure: SQogu9XzcnplQBLWXqo2qwZBUpgInKflrei6BdTaYbxmCtdbCmev7H9OHBBXzzPe8R5WjjKqKNw6rFBJP2kAp2pS9KNJi1BfhHNvvs4JDgt4xUQ6hlcvyBAV+/L+EslIcXgm4AjEGBCn6G+4i9dwonYgl1iMIh0DAgRGQHexnyKDWpxlsgdH3TInwC2vZuZARAGhvzy3KB/X1nBNa6wbD7qEVTMiHmEEIZINS3PG6SGcaBSYSJaOPi2f7/MWLhzxXgKfWJgNpPNrMzlHJ4J7GSHlUlsLVZKaYoBihPa5+e6dkVKh8qrxJBIZe4y5kKuY+sRtlslFwbVQj8dE6T5rdiPLuBDhTkTL98tVAgHrKZjmhZ97sak/iPr14yHAk5K9hgEh+wsI8w48Edhk4KA+MmQA4lhPUzFW0Fm9jqVkpowNjc4NgAcGK009cW1+ZjlZnQFwIzfoYgbKsyisGwdclVHAotpxnibZqBfza0AXhbeX+5w+ZEF92gqvjdvG6dMWiQdplRWyYScpAq/1c2L8EkhXYfk8i8Jl+LkuH2xoRfEdG0Vr/EpW1omThkwGz2v6QPd29p1EgI4hiJ7GsmQvf8DoPejMW46QibZWKENIxkN2md9UzIKQEuNo7mf2pXGUgfdXtxjIC8AnHyoYCyqpjSPeBMi1uKQYLI/wnGpckDY=
+      secure: "SQogu9XzcnplQBLWXqo2qwZBUpgInKflrei6BdTaYbxmCtdbCmev7H9OHBBXzzPe8R5WjjKqKNw6rFBJP2kAp2pS9KNJi1BfhHNvvs4JDgt4xUQ6hlcvyBAV+/L+EslIcXgm4AjEGBCn6G+4i9dwonYgl1iMIh0DAgRGQHexnyKDWpxlsgdH3TInwC2vZuZARAGhvzy3KB/X1nBNa6wbD7qEVTMiHmEEIZINS3PG6SGcaBSYSJaOPi2f7/MWLhzxXgKfWJgNpPNrMzlHJ4J7GSHlUlsLVZKaYoBihPa5+e6dkVKh8qrxJBIZe4y5kKuY+sRtlslFwbVQj8dE6T5rdiPLuBDhTkTL98tVAgHrKZjmhZ97sak/iPr14yHAk5K9hgEh+wsI8w48Edhk4KA+MmQA4lhPUzFW0Fm9jqVkpowNjc4NgAcGK009cW1+ZjlZnQFwIzfoYgbKsyisGwdclVHAotpxnibZqBfza0AXhbeX+5w+ZEF92gqvjdvG6dMWiQdplRWyYScpAq/1c2L8EkhXYfk8i8Jl+LkuH2xoRfEdG0Vr/EpW1omThkwGz2v6QPd29p1EgI4hiJ7GsmQvf8DoPejMW46QibZWKENIxkN2md9UzIKQEuNo7mf2pXGUgfdXtxjIC8AnHyoYCyqpjSPeBMi1uKQYLI/wnGpckDY="
     on:
       tags: true
       distributions: sdist bdist_wheel
