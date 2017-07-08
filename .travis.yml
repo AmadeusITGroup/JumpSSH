@@ -10,6 +10,10 @@ services:
   - docker
 
 addons:
+  apt:
+    packages:
+      # python 2.6 not installed anymore in default images
+      - python2.6
   sonarqube:
     organization: default
     token:
