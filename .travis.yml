@@ -16,6 +16,7 @@ addons:
     packages:
       # python 2.6 not installed anymore in base image
       - python2.6
+      - python-dev
   sonarcloud:
     organization: "1a"
     token:
