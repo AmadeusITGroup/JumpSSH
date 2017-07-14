@@ -1,3 +1,8 @@
+1.0.2 (07/14/2017)
+------------------
+- Fix run of shell builtins commands (source, ...) when impersonating another user as they cannot be executed
+  without the shell and by default, sudo do not run shell
+
 1.0.1 (06/11/2017)
 ------------------
 - Fix BadHostKeyException raised by paramiko when reusing same ssh session object to connect to a different
