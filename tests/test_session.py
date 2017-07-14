@@ -156,8 +156,20 @@ def test_run_cmd(docker_env, capfd):
     out, err = capfd.readouterr()
     assert len(out) > 0
 
+
+def test_run_cmd_sudo(docker_env):
+    gateway_ip, gateway_port = docker_env.get_host_ip_port('gateway')
+
+    gateway_session = SSHSession(host=gateway_ip, port=gateway_port,
+                                 username='user1', password='password1').open()
+
     # run command as user2
     assert gateway_session.run_cmd('whoami', username='user2')[1].strip() == 'user2'
+
+    # run bash builtins commands with sudo (here command 'source')
+    gateway_session.file(remote_path='/home/user2/ssh_setenv', use_sudo=True, owner='user2',
+                         content='MY_VAR=variable_set')
+    gateway_session.run_cmd('source /home/user2/ssh_setenv', username='user2')
 
 
 def get_cmd_output(docker_env):
