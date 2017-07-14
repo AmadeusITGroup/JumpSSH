@@ -237,7 +237,8 @@ class SSHSession(object):
         my_cmd = cmd
         if username:
             user = username
-            my_cmd = 'sudo -u %s %s' % (user, cmd)
+            # need to run full command with shell to support shell builtins commands (source, ...)
+            my_cmd = 'sudo su - %s -c "%s"' % (user, cmd.replace('"', '\\"'))
 
         if not silent:
             logger.debug("Running command '%s' on '%s' as %s..." % (cmd, self.host, user))
