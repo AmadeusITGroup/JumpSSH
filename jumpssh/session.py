@@ -60,7 +60,7 @@ class SSHSession(object):
         self.proxy_transport = proxy_transport
         self.private_key_file = private_key_file
 
-        self.ssh_remote_session = None
+        self.ssh_remote_sessions = {}
 
         self.ssh_client = paramiko.client.SSHClient()
         self.ssh_transport = None
@@ -176,9 +176,9 @@ class SSHSession(object):
             >>> ssh_session.is_active()
             False
         """
-        if hasattr(self, 'ssh_remote_session') and self.ssh_remote_session:
-            self.ssh_remote_session.close()
-            self.ssh_remote_session = None
+        if hasattr(self, 'ssh_remote_sessions') and self.ssh_remote_sessions:
+            for remote_session in self.ssh_remote_sessions.values():
+                remote_session.close()
         if hasattr(self, 'ssh_client') and self.is_active():
             logger.info("Closing connection to '%s:%s'..." % (self.host, self.port))
             self.ssh_client.close()
@@ -392,26 +392,30 @@ class SSHSession(object):
         if username:
             user = username
 
-        if self.ssh_remote_session:
+        # build remote session key to identify this session among others
+        session_key = ('%s_%s_%s' % (host, port, user)).lower()
+
+        remote_session = self.ssh_remote_sessions.get(session_key)
+        if remote_session:
             # if same session already active, just return it
-            if self.ssh_remote_session.is_active() \
-                    and self.ssh_remote_session.host == host \
-                    and self.ssh_remote_session.port == port \
-                    and self.ssh_remote_session.username == user:
-                return self.ssh_remote_session
-            # close previous existing sessions as only 1 tunnel possible on port SSH_PORT
+            if remote_session.is_active():
+                return remote_session
             else:
-                self.ssh_remote_session.close()
-                self.ssh_remote_session = None
+                # if same session exists but not usable, cleanup object
+                del self.ssh_remote_sessions[session_key]
 
         logger.info("Connecting to '%s:%s' through '%s' with user '%s'..." % (host, port, self.host, user))
-        self.ssh_remote_session = SSHSession(host=host,
-                                             username=user,
-                                             proxy_transport=self.ssh_transport,
-                                             private_key_file=private_key_file,
-                                             port=port,
-                                             password=password).open(retry=retry)
-        return self.ssh_remote_session
+        remote_session = SSHSession(host=host,
+                                    username=user,
+                                    proxy_transport=self.ssh_transport,
+                                    private_key_file=private_key_file,
+                                    port=port,
+                                    password=password).open(retry=retry)
+
+        # keep reference to opened session, to be able to reuse it later
+        self.ssh_remote_sessions[session_key] = remote_session
+
+        return remote_session
 
     def get_sftp_client(self):
         """ See documentation for available methods on paramiko.sftp_client at :

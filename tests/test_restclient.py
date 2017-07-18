@@ -3,6 +3,7 @@ Some unit tests for RestSshClient.
 """
 from __future__ import print_function
 import json
+import logging
 import sys
 import tempfile
 
@@ -11,6 +12,8 @@ import pytest
 from jumpssh import exception, SSHSession, RestSshClient
 
 from . import util as tests_util
+
+logging.basicConfig()
 
 
 @pytest.fixture(scope="function")
