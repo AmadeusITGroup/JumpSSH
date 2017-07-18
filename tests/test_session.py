@@ -4,6 +4,7 @@ Some unit tests for SSHSession.
 from __future__ import print_function
 import errno
 import json
+import logging
 import os
 import random
 import string
@@ -15,6 +16,9 @@ import pytest
 from jumpssh import exception, SSHSession
 
 from . import util as tests_util
+
+
+logging.basicConfig()
 
 
 @pytest.fixture(scope="module")
@@ -238,8 +242,23 @@ def test_get_remote_session(docker_env):
     assert remotehost2_session.is_active()
     assert remotehost2_session.get_cmd_output('hostname').strip() == 'remotehost2.example.com'
 
-    # check that previous session from gateway has been automatically closed
+    # check that previous session from gateway is still active
+    assert remotehost_session.is_active()
+    assert remotehost_session.get_cmd_output('hostname') == 'remotehost.example.com'
+
+    # close a remote session and check we can still request ssh session with same parameters
+    remotehost2_session.close()
+    assert not remotehost2_session.is_active()
+    remotehost2_session = gateway_session.get_remote_session(host=tests_util.get_host_ip(),
+                                                             port=remotehost2_port,
+                                                             username='user1',
+                                                             password='password1')
+    assert remotehost2_session.is_active()
+
+    # close gateway session and check all child sessions are automatically closed
+    gateway_session.close()
     assert not remotehost_session.is_active()
+    assert not remotehost2_session.is_active()
 
 
 def test_handle_big_json_files(docker_env):
