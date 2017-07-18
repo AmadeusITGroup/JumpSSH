@@ -34,7 +34,7 @@ def test_unknown_host():
     assert type(excinfo.value.__cause__) == socket.gaierror
 
     with pytest.raises(exception.ConnectionError) as excinfo:
-        SSHSession(host='unknown_host', username='my_user').open(retry=2)
+        SSHSession(host='unknown_host', username='my_user').open(retry=2, retry_interval=2)
     assert type(excinfo.value.__cause__) == socket.gaierror
 
 
