@@ -103,10 +103,11 @@ class SSHSession(object):
         """
         return self.ssh_client and self.ssh_client.get_transport() and self.ssh_client.get_transport().is_active()
 
-    def open(self, retry=0):
+    def open(self, retry=0, retry_interval=10):
         """Open session with the remote host
 
         :param retry: number of retry to establish connection with remote host (-1 for infinite retry)
+        :param retry_interval: number of seconds between each retry
         :return: same SSHSession opened
 
         Usage::
@@ -153,7 +154,7 @@ class SSHSession(object):
                     logger.warning("ssh to '%s:%s' still not possible (attempt %d): %s.\nKeep retrying..."
                                    % (self.host, self.port, self.retry_nb, repr(ex)))
                     self.retry_nb += 1
-                    time.sleep(10)
+                    time.sleep(retry_interval)
                 else:
                     raise exception.ConnectionError("Unable to connect to '%s:%s' with user '%s'"
                                                     % (self.host, self.port, self.username), original_exception=ex)
@@ -357,7 +358,8 @@ class SSHSession(object):
             retry=0,
             private_key_file=None,
             port=SSH_PORT,
-            password=None
+            password=None,
+            retry_interval=10
     ):
         """ Establish connection with a remote host from current session
 
@@ -367,6 +369,7 @@ class SSHSession(object):
         :param private_key_file: local path to a private key file to use if key needed for authentication
         :param port: port to connect to the remote host (default 22)
         :param password: password to be used for authentication with remote host
+        :param retry_interval: number of seconds between each retry
         :return: session object of the remote host
         :rtype: SSHSession
 
@@ -410,7 +413,8 @@ class SSHSession(object):
                                     proxy_transport=self.ssh_transport,
                                     private_key_file=private_key_file,
                                     port=port,
-                                    password=password).open(retry=retry)
+                                    password=password).open(retry=retry,
+                                                            retry_interval=retry_interval)
 
         # keep reference to opened session, to be able to reuse it later
         self.ssh_remote_sessions[session_key] = remote_session
