@@ -1,3 +1,9 @@
+1.1.0 (07/20/2017)
+------------------
+- Each ssh session can be used as a jump server to access multiple remote sessions in parallel. Only 1 remote
+  session per jump server was allowed before.
+- ability to customize retry interval when opening a ssh session
+
 1.0.2 (07/14/2017)
 ------------------
 - Fix run of shell builtins commands (source, ...) when impersonating another user as they cannot be executed
