@@ -1,3 +1,7 @@
+For next release
+----------------
+- automatically try to open session when running command on an inactive session
+
 1.1.0 (07/20/2017)
 ------------------
 - Each ssh session can be used as a jump server to access multiple remote sessions in parallel. Only 1 remote

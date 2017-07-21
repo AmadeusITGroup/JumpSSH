@@ -241,13 +241,12 @@ class SSHSession(object):
             # need to run full command with shell to support shell builtins commands (source, ...)
             my_cmd = 'sudo su - %s -c "%s"' % (user, cmd.replace('"', '\\"'))
 
+        # check session is still active before running a command, else try to open it
+        if not self.is_active():
+            self.open()
+
         if not silent:
             logger.debug("Running command '%s' on '%s' as %s..." % (cmd, self.host, user))
-
-        # check session is still active before running a command
-        if not self.ssh_transport.is_active():
-            raise exception.SSHException("Unable to run command '%s', SSH session to '%s' is closed"
-                                         % (cmd, self.host))
 
         channel = self.ssh_transport.open_session()
 

@@ -67,9 +67,8 @@ def test_active_close_session(docker_env):
     # closing a closed session does nothing
     gateway_session.close()
 
-    # running command on an inactive session raise a SSHException
-    with pytest.raises(exception.SSHException):
-        gateway_session.run_cmd('ls')
+    # running command on an inactive session will automatically open the session
+    assert gateway_session.run_cmd('ls').exit_code == 0
 
 
 def test_active_close_session_with_context_manager(docker_env):
