@@ -1,6 +1,7 @@
 For next release
 ----------------
-- automatically try to open session when running command on an inactive session
+- automatically open inactive session when running command on it
+- automatically open inactive jump session when requesting remote session
 
 1.1.0 (07/20/2017)
 ------------------
