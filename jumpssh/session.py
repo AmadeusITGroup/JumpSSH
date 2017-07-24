@@ -389,6 +389,10 @@ class SSHSession(object):
             # retry indefinitely to connect to remote host until success
             >>> remote_session = ssh_session.get_remote_session('remote.example.com', retry=-1)
         """
+        # check session is still active before using it as a jump server, else try to open it
+        if not self.is_active():
+            self.open()
+
         # get user to be used for remote ssh session (default : same user than parent session)
         user = self.username
         if username:

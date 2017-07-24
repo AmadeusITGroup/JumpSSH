@@ -259,6 +259,15 @@ def test_get_remote_session(docker_env):
     assert not remotehost_session.is_active()
     assert not remotehost2_session.is_active()
 
+    # get remote session from closed session should automatically open gateway session first
+    # then return remote session
+    remotehost_session = gateway_session.get_remote_session(host=tests_util.get_host_ip(),
+                                                            port=remotehost_port,
+                                                            username='user1',
+                                                            password='password1')
+    assert gateway_session.is_active()
+    assert remotehost_session.is_active()
+
 
 def test_handle_big_json_files(docker_env):
     gateway_ip, gateway_port = docker_env.get_host_ip_port('gateway')
