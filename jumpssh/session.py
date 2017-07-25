@@ -205,7 +205,7 @@ class SSHSession(object):
             if True, raise SSHException when exit code of the command is different from 0
             else just return exit code and command output
         :param continuous_output: if True, print output all along the command is running
-        :param silent: if True, does not log the command neither the output of the command
+        :param silent: if True, does not log the command run (useful if sensitive information are used in command)
         :param timeout: length in seconds after what a TimeoutError exception is raised
         :param input_data:
             key/value dictionary used when remote command expects input from user

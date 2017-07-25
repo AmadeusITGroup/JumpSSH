@@ -66,6 +66,7 @@ class RestSshClient(object):
         :param document_info_only: (optional) if True, only HTTP Headers are returned in http response (default=False).
         :param auth: (optional) Auth tuple to enable Basic/Digest/Custom HTTP Auth.
         :param verify: (optional) whether the SSL cert will be verified.
+        :param silent: if True, does not log the command run (useful if sensitive information are used in command)
         :return: :class:`HTTPResponse <HTTPResponse>` object
         :rtype: restclient.HTTPResponse
 
@@ -140,8 +141,13 @@ class RestSshClient(object):
             cmd += "-d '%s' " % data.replace("'", "\'")
 
         # execute remote http query and get raw response
-        # do not raise exception if error code different from 0 as some query can be successful with other exit codes
-        exit_code, output = self.ssh_session.run_cmd(cmd, raise_if_error=False)
+        exit_code, output = self.ssh_session.run_cmd(
+            cmd,
+            # do not raise exception if error code different from 0 as some queries can be successful
+            # with other exit codes
+            raise_if_error=False,
+            # propagate 'silent' parameter to run_cmd
+            silent=kwargs.get('silent', False))
 
         # check exit code has a proper value
         # most of successful commands will return exit code 0
