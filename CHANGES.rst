@@ -1,3 +1,8 @@
+1.2.1 (07/27/2017)
+------------------
+- reduce logging level of some logs
+- propagate missing 'silent' parameter in restclient module to run_cmd to control logging 
+
 1.2.0 (07/24/2017)
 ------------------
 - automatically open inactive session when running command on it
