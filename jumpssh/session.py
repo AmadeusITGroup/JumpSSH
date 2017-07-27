@@ -181,7 +181,7 @@ class SSHSession(object):
             for remote_session in self.ssh_remote_sessions.values():
                 remote_session.close()
         if hasattr(self, 'ssh_client') and self.is_active():
-            logger.info("Closing connection to '%s:%s'..." % (self.host, self.port))
+            logger.debug("Closing connection to '%s:%s'..." % (self.host, self.port))
             self.ssh_client.close()
             # clear local host keys as they may not be valid for next connection
             self.ssh_client.get_host_keys().clear()
@@ -205,7 +205,7 @@ class SSHSession(object):
             if True, raise SSHException when exit code of the command is different from 0
             else just return exit code and command output
         :param continuous_output: if True, print output all along the command is running
-        :param silent: if True, does not log the command neither the output of the command
+        :param silent: if True, does not log the command run (useful if sensitive information are used in command)
         :param timeout: length in seconds after what a TimeoutError exception is raised
         :param input_data:
             key/value dictionary used when remote command expects input from user
@@ -301,9 +301,6 @@ class SSHSession(object):
                     raise exception.TimeoutError(
                         "Timeout of %ds reached when calling command '%s'. "
                         "Increase timeout if you think the command was still running successfully." % (timeout, cmd))
-
-        if not silent:
-            logger.debug(output.getvalue())
 
         exit_code = channel.recv_exit_status()
         output_value = output.getvalue().strip()
