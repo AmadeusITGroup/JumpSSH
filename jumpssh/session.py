@@ -205,7 +205,10 @@ class SSHSession(object):
             if True, raise SSHException when exit code of the command is different from 0
             else just return exit code and command output
         :param continuous_output: if True, print output all along the command is running
-        :param silent: if True, does not log the command run (useful if sensitive information are used in command)
+        :param silent:
+            if True, does not log the command run (useful if sensitive information are used in command)
+            if parameter is a list, all strings of the command matching an item of the list will be concealed
+            in logs (regexp supported)
         :param timeout: length in seconds after what a TimeoutError exception is raised
         :param input_data:
             key/value dictionary used when remote command expects input from user
@@ -245,8 +248,14 @@ class SSHSession(object):
         if not self.is_active():
             self.open()
 
-        if not silent:
-            logger.debug("Running command '%s' on '%s' as %s..." % (cmd, self.host, user))
+        # conceal text from command to be logged if requested with silent parameter
+        cmd_for_log = cmd
+        if isinstance(silent, list):
+            for pattern in silent:
+                cmd_for_log = re.sub(pattern=pattern, repl='XXXXXXX', string=cmd_for_log)
+
+        if silent is not True:
+            logger.debug("Running command '%s' on '%s' as %s..." % (cmd_for_log, self.host, user))
 
         channel = self.ssh_transport.open_session()
 
@@ -300,13 +309,14 @@ class SSHSession(object):
                 if et_secs > timeout:
                     raise exception.TimeoutError(
                         "Timeout of %ds reached when calling command '%s'. "
-                        "Increase timeout if you think the command was still running successfully." % (timeout, cmd))
+                        "Increase timeout if you think the command was still running successfully."
+                        % (timeout, cmd_for_log))
 
         exit_code = channel.recv_exit_status()
         output_value = output.getvalue().strip()
 
         if raise_if_error and exit_code != 0:
-            raise exception.RunCmdError(exit_code=exit_code, command=cmd, error=output_value)
+            raise exception.RunCmdError(exit_code=exit_code, command=cmd_for_log, error=output_value)
 
         RunSSHCmdResult = collections.namedtuple('RunSSHCmdResult', 'exit_code output')
         return RunSSHCmdResult(exit_code=exit_code, output=output_value)

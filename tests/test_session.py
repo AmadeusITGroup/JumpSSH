@@ -175,7 +175,40 @@ def test_run_cmd_sudo(docker_env):
     gateway_session.run_cmd('source /home/user2/ssh_setenv', username='user2')
 
 
-def get_cmd_output(docker_env):
+def test_run_cmd_silent(docker_env, caplog):
+    gateway_ip, gateway_port = docker_env.get_host_ip_port('gateway')
+
+    gateway_session = SSHSession(host=gateway_ip, port=gateway_port,
+                                 username='user1', password='password1').open()
+
+    # run command and check full command is logged
+    text = 'text with public and private data'
+    cmd = "echo '%s'" % text
+    assert gateway_session.run_cmd(cmd).output == text
+    assert cmd in caplog.text
+
+    # check nothing is logged when silent is True
+    text = 'another text with public and private data'
+    cmd = "echo '%s'" % text
+    assert gateway_session.run_cmd(cmd, silent=True).output == text
+    assert cmd not in caplog.text
+
+    # check data is concealed when silent is a list
+    text = 'a third text with public and private data'
+    cmd = "echo '%s'" % text
+    assert gateway_session.run_cmd(cmd, silent=['third', 'private data']).output == text
+    assert cmd not in caplog.text
+    assert 'a XXXXXXX text with public and XXXXXXX' in caplog.text
+
+    # check data is concealed when silent is a list with regexp
+    text = 'another text   to   test    regexp'
+    cmd = "echo '%s'" % text
+    assert gateway_session.run_cmd(cmd, silent=['\s+']).output == text
+    assert cmd not in caplog.text
+    assert 'anotherXXXXXXXtextXXXXXXXtoXXXXXXXtestXXXXXXXregexp' in caplog.text
+
+
+def test_get_cmd_output(docker_env):
     gateway_ip, gateway_port = docker_env.get_host_ip_port('gateway')
     gateway_session = SSHSession(host=gateway_ip, port=gateway_port,
                                  username='user1', password='password1').open()
