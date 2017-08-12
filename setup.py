@@ -64,6 +64,7 @@ setup(
     ],
     tests_require=[
         'docker-py',
-        'pytest'
+        'pytest',
+        'pytest-catchlog'
     ]
 )
