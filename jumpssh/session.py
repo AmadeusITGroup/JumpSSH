@@ -194,7 +194,8 @@ class SSHSession(object):
             continuous_output=False,
             silent=False,
             timeout=None,
-            input_data=None
+            input_data=None,
+            success_exit_code=0
     ):
         """ Run command on the remote host and return result locally
 
@@ -213,6 +214,7 @@ class SSHSession(object):
         :param input_data:
             key/value dictionary used when remote command expects input from user
             when key is matching command output, value is sent
+        :param success_exit_code: integer or list of integer considered as a success exit code for command run
         :raises TimeoutError: if command run longer than the specified timeout
         :raises TypeError: if `cmd` parameter is neither a string neither a list of string
         :raises SSHException: if current SSHSession is already closed
@@ -237,6 +239,12 @@ class SSHSession(object):
             cmd = " && ".join(cmd)
         elif not isinstance(cmd, string_type):
             raise TypeError("Invalid type for cmd argument '%s'" % type(cmd))
+
+        # success_exit_code must be int or list of int
+        if isinstance(success_exit_code, int):
+            success_exit_code = [success_exit_code]
+        elif not isinstance(success_exit_code, list):
+            raise TypeError("Invalid type for success_exit_code argument '%s'" % type(success_exit_code))
 
         my_cmd = cmd
         if username:
@@ -315,8 +323,11 @@ class SSHSession(object):
         exit_code = channel.recv_exit_status()
         output_value = output.getvalue().strip()
 
-        if raise_if_error and exit_code != 0:
-            raise exception.RunCmdError(exit_code=exit_code, command=cmd_for_log, error=output_value)
+        if raise_if_error and exit_code not in success_exit_code:
+            raise exception.RunCmdError(exit_code=exit_code,
+                                        success_exit_code=success_exit_code,
+                                        command=cmd_for_log,
+                                        error=output_value)
 
         RunSSHCmdResult = collections.namedtuple('RunSSHCmdResult', 'exit_code output')
         return RunSSHCmdResult(exit_code=exit_code, output=output_value)

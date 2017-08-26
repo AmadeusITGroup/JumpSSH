@@ -29,15 +29,17 @@ class RestClientError(SSHException):
 
 
 class RunCmdError(SSHException):
-    """Exception raised when remote command return a non-zero exit code
+    """Exception raised when remote command return a non success exit code
 
-    :ivar int exit_code: The error code from the run command.
+    :ivar int exit_code: The exit code from the run command.
+    :ivar list(int): List of expected success exit codes for run command.
     :ivar str command: The command that is generating this exception.
     :ivar str error: The error captured from the command output.
     """
-    def __init__(self, exit_code, command, error):
-        super(RunCmdError, self).__init__('Command (%s) returned non-zero exit status (%s): %s'
-                                          % (command, exit_code, error))
+    def __init__(self, exit_code, success_exit_code, command, error):
+        super(RunCmdError, self).__init__('Command (%s) returned exit status (%s), expected [%s]: %s'
+                                          % (command, exit_code, ','.join(map(str, success_exit_code)), error))
         self.exit_code = exit_code
+        self.success_exit_code = success_exit_code
         self.command = command
         self.error = error
