@@ -1,8 +1,10 @@
 Next release
 ------------
-- allow to conceal part of the command run in logs specifying list of pattern in silent parameter (regexp supported)
+- allow to conceal part of the command run in logs specifying list of pattern in silent parameter (regexp format)
   For example, if a password is specified in command you may want to conceal it in logs but still want to log the
   rest of the command run
+- ability to customize success exit code when calling run_cmd so that an exit code different from 0 do not raise
+  any exception. Success exit code can be an int or even a list of int if several exit codes are considered a success.
 
 1.2.1 (07/27/2017)
 ------------------

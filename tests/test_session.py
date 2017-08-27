@@ -131,7 +131,7 @@ def test_run_cmd(docker_env, capfd):
     # basic successful command
     (exit_code, output) = gateway_session.run_cmd('hostname')
     assert exit_code == 0
-    assert output.strip() == 'gateway.example.com'
+    assert output == 'gateway.example.com'
 
     # successful list command
     gateway_session.run_cmd(['cd /etc', 'ls'])
@@ -167,7 +167,7 @@ def test_run_cmd_sudo(docker_env):
                                  username='user1', password='password1').open()
 
     # run command as user2
-    assert gateway_session.run_cmd('whoami', username='user2')[1].strip() == 'user2'
+    assert gateway_session.run_cmd('whoami', username='user2').output == 'user2'
 
     # run bash builtins commands with sudo (here command 'source')
     gateway_session.file(remote_path='/home/user2/ssh_setenv', use_sudo=True, owner='user2',
@@ -206,6 +206,28 @@ def test_run_cmd_silent(docker_env, caplog):
     assert gateway_session.run_cmd(cmd, silent=['\s+']).output == text
     assert cmd not in caplog.text
     assert 'anotherXXXXXXXtextXXXXXXXtoXXXXXXXtestXXXXXXXregexp' in caplog.text
+
+
+def test_run_cmd_success_exit_code(docker_env):
+    gateway_ip, gateway_port = docker_env.get_host_ip_port('gateway')
+
+    gateway_session = SSHSession(host=gateway_ip, port=gateway_port,
+                                 username='user1', password='password1').open()
+
+    # check invalid type for parameter
+    with pytest.raises(TypeError):
+        gateway_session.run_cmd('hostname', success_exit_code={'key': 'value'})
+
+    # valid command with custom success exit code should raise RunCmdError
+    with pytest.raises(exception.RunCmdError) as exc_info:
+        gateway_session.run_cmd('hostname', success_exit_code=3)
+    assert exc_info.value.exit_code == 0
+    assert exc_info.value.success_exit_code == [3]
+
+    # dummy command should not raise error as exit code 127 is valid too
+    # and test also that list is supported
+    gateway_session.run_cmd('dummy commmand', success_exit_code=[0, 127])
+    gateway_session.run_cmd('hostname', success_exit_code=[0, 127])
 
 
 def test_get_cmd_output(docker_env):
@@ -256,7 +278,7 @@ def test_get_remote_session(docker_env):
                                                             password='password1')
 
     # run basic command on remote host
-    assert remotehost_session.get_cmd_output('hostname').strip() == 'remotehost.example.com'
+    assert remotehost_session.get_cmd_output('hostname') == 'remotehost.example.com'
 
     # request twice the same remote session just return the existing one
     assert gateway_session.get_remote_session(host=tests_util.get_host_ip(),
@@ -272,7 +294,7 @@ def test_get_remote_session(docker_env):
                                                              password='password1')
     # check that new session is active
     assert remotehost2_session.is_active()
-    assert remotehost2_session.get_cmd_output('hostname').strip() == 'remotehost2.example.com'
+    assert remotehost2_session.get_cmd_output('hostname') == 'remotehost2.example.com'
 
     # check that previous session from gateway is still active
     assert remotehost_session.is_active()
@@ -387,9 +409,9 @@ def test_put(docker_env):
         remotehost_session.put(local_path=local_path, remote_path=remote_path, owner='user2', permissions='600')
         assert remotehost_session.exists(remote_path) is True
         assert remotehost_session.get_cmd_output(
-            "ls -l %s | awk '{print $3}'" % remote_path).strip() == 'user2'
+            "ls -l %s | awk '{print $3}'" % remote_path) == 'user2'
         assert remotehost_session.get_cmd_output(
-            "stat -c '%a %n' " + remote_path + " | awk '{print $1}'").strip() == '600'
+            "stat -c '%a %n' " + remote_path + " | awk '{print $1}'") == '600'
     finally:
         os.remove(local_path)
 
