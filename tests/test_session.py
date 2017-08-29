@@ -230,6 +230,17 @@ def test_run_cmd_success_exit_code(docker_env):
     gateway_session.run_cmd('hostname', success_exit_code=[0, 127])
 
 
+def test_run_cmd_retry(docker_env):
+    gateway_ip, gateway_port = docker_env.get_host_ip_port('gateway')
+
+    gateway_session = SSHSession(host=gateway_ip, port=gateway_port,
+                                 username='user1', password='password1').open()
+
+    with pytest.raises(exception.RunCmdError) as exc_info:
+        gateway_session.run_cmd('dummy commmand', retry=2, retry_interval=1)
+    assert exc_info.value.retry_nb == 2
+
+
 def test_get_cmd_output(docker_env):
     gateway_ip, gateway_port = docker_env.get_host_ip_port('gateway')
     gateway_session = SSHSession(host=gateway_ip, port=gateway_port,
