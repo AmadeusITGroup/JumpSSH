@@ -6,15 +6,13 @@ import errno
 from io import StringIO
 import logging
 import os
-import random
 import re
 import select
-import string
 import time
 
 import paramiko
 
-from . import exception
+from . import util, exception
 
 logger = logging.getLogger(__name__)
 
@@ -197,7 +195,8 @@ class SSHSession(object):
             input_data=None,
             success_exit_code=0,
             retry=0,
-            retry_interval=5
+            retry_interval=5,
+            keep_retry_history=False
     ):
         """ Run command on the remote host and return result locally
 
@@ -220,12 +219,15 @@ class SSHSession(object):
         :param retry: number of retry until exit code is part of successful exit code list (-1 for infinite retry) or
             RunCmdError exception is raised
         :param retry_interval: number of seconds between each retry
+        :param keep_retry_history: if True, all retries results are kept and accessible in return result
+            default is False as we don't want to save by default all output for all retries especially for big output
         :raises TimeoutError: if command run longer than the specified timeout
         :raises TypeError: if `cmd` parameter is neither a string neither a list of string
         :raises SSHException: if current SSHSession is already closed
         :raises RunCmdError: if exit code of the command is different from 0 and raise_if_error is True
-        :return: a namedtuple containing `exit_code` and `output` of the remotely executed command
-        :rtype: collections.namedtuple(exit_code=int, output=str)
+        :return: a class inheriting from collections.namedtuple containing mainly `exit_code` and `output`
+            of the remotely executed command
+        :rtype: RunCmdResult
 
         Usage::
             >>> from jumpssh import SSHSession
@@ -269,6 +271,9 @@ class SSHSession(object):
 
         if silent is not True:
             logger.debug("Running command '%s' on '%s' as %s..." % (cmd_for_log, self.host, user))
+
+        # keep track of all results for each run to make them available in response object
+        result_list = []
 
         # retry command until exit_code in success code list or max retry nb reached
         retry_nb = 0
@@ -332,6 +337,10 @@ class SSHSession(object):
             exit_code = channel.recv_exit_status()
             output_value = output.getvalue().strip()
 
+            # keep result of all runs is result, not only the last one
+            if keep_retry_history:
+                result_list.append(RunSSHCmdResult(exit_code=exit_code, output=output_value))
+
             if exit_code in success_exit_code:
                 # command ran successfully, no retry needed
                 break
@@ -340,18 +349,24 @@ class SSHSession(object):
                     retry_nb += 1
                     time.sleep(retry_interval)
                     continue
+                # max retry reached and exception must be raised
                 elif raise_if_error:
                     raise exception.RunCmdError(exit_code=exit_code,
                                                 success_exit_code=success_exit_code,
                                                 command=cmd_for_log,
                                                 error=output_value,
-                                                retry_nb=retry_nb)
+                                                runs_nb=retry_nb+1)
                 else:
                     # command ended in error but max retry already reached and no exception must be raised
                     break
 
-        RunSSHCmdResult = collections.namedtuple('RunSSHCmdResult', 'exit_code output')
-        return RunSSHCmdResult(exit_code=exit_code, output=output_value)
+        # return result of run command + all information used to run the command
+        return RunCmdResult(exit_code=exit_code,
+                            output=output_value,
+                            result_list=result_list,
+                            command=cmd_for_log,
+                            success_exit_code=success_exit_code,
+                            runs_nb=retry_nb+1)
 
     def get_cmd_output(self, cmd, **kwargs):
         """ Return output of remotely executed command
@@ -574,7 +589,7 @@ class SSHSession(object):
 
         # copy first remote file in a temporary location accessible from current user
         if use_sudo:
-            copy_path = "/tmp/%s" % ''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(15))
+            copy_path = "/tmp/%s" % util.id_generator(size=15)
             copy_command = "cp %s %s" % (remote_path, copy_path)
             self.run_cmd(copy_command, silent=True, username=sudo_username)
 
@@ -632,7 +647,7 @@ class SSHSession(object):
         copy_path = remote_path
         if use_sudo:
             # copy local file on remote host in temporary dir
-            copy_path = "/tmp/%s" % ''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(15))
+            copy_path = "/tmp/%s" % util.id_generator(size=15)
 
         # create file remotely
         with sftp_client.file(copy_path, mode='w+') as remote_file:
@@ -652,3 +667,43 @@ class SSHSession(object):
 
         if permissions:
             self.run_cmd("sudo chmod %s %s" % (permissions, remote_path), silent=True)
+
+
+RunSSHCmdResult = collections.namedtuple('RunSSHCmdResult', 'exit_code output')
+
+
+class RunCmdResult(RunSSHCmdResult):
+    """Result of a command run with SSHSession
+
+    :param exit_code: exit code of the run command (last run exit_code in case of retries)
+    :param output: output of the command run  (last run output only in case of retries)
+    :param command: the command run
+    :param result_list: list of RunSSHCmdResult, 1 item for each retry
+    :param success_exit_code: list of integer considered as a success exit code for command run
+    :param runs_nb: number of times the command has been run
+
+    Usage::
+
+        >>> result = ssh_session.run_cmd('hostname')
+
+        # access to both exit_code and command output using tuple
+        >>> (exit_code, output) = result
+
+        # access directly to single attributes
+        >>> result.exit_code
+        0
+
+        >>> result.output
+        u'gateway.example.com'
+
+        >>> result.command
+        'hostname'
+
+    """
+    def __new__(cls, exit_code, output, result_list, command, success_exit_code, runs_nb):
+        self = super(RunCmdResult, cls).__new__(cls, exit_code, output)
+        self.result_list = result_list
+        self.command = command
+        self.success_exit_code = success_exit_code
+        self.runs_nb = runs_nb
+        return self

@@ -24,3 +24,11 @@ jumpssh.session
     :members:
     :undoc-members:
     :show-inheritance:
+
+jumpssh.util
+------------
+
+.. automodule:: jumpssh.util
+    :members:
+    :undoc-members:
+    :show-inheritance:
