@@ -240,7 +240,7 @@ def test_run_cmd_retry(docker_env):
 
     # prepare command that append a character in file at each new run
     temporary_filename1 = util.id_generator(size=7)
-    cmd = "echo -n 'p' >> {0} | grep 'pppp' {0}".format(temporary_filename1)
+    cmd = "echo -n 'p' >> {0} && grep 'pppp' {0}".format(temporary_filename1)
 
     # command should still raise exception after 2 retries(=3 runs) as we except 4 p
     with pytest.raises(exception.RunCmdError) as exc_info:
@@ -250,13 +250,7 @@ def test_run_cmd_retry(docker_env):
     # same command should work fine with 3 retries(=4 runs)
     temporary_filename2 = util.id_generator(size=8)
     cmd = cmd.replace(temporary_filename1, temporary_filename2)
-    try:
-        result = gateway_session.run_cmd(cmd, retry=3, retry_interval=1)
-    except exception.RunCmdError:
-        # just display file content in case of error to help debugging
-        logging.debug('file content (%s): %s'
-                      % (temporary_filename2, gateway_session.get_cmd_output('cat %s' % temporary_filename2)))
-        raise
+    result = gateway_session.run_cmd(cmd, retry=3, retry_interval=1)
 
     # by default no history kept
     assert len(result.result_list) == 0
