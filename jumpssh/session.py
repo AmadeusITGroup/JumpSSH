@@ -6,15 +6,13 @@ import errno
 from io import StringIO
 import logging
 import os
-import random
 import re
 import select
-import string
 import time
 
 import paramiko
 
-from . import exception
+from . import util, exception
 
 logger = logging.getLogger(__name__)
 
@@ -195,7 +193,10 @@ class SSHSession(object):
             silent=False,
             timeout=None,
             input_data=None,
-            success_exit_code=0
+            success_exit_code=0,
+            retry=0,
+            retry_interval=5,
+            keep_retry_history=False
     ):
         """ Run command on the remote host and return result locally
 
@@ -215,12 +216,18 @@ class SSHSession(object):
             key/value dictionary used when remote command expects input from user
             when key is matching command output, value is sent
         :param success_exit_code: integer or list of integer considered as a success exit code for command run
+        :param retry: number of retry until exit code is part of successful exit code list (-1 for infinite retry) or
+            RunCmdError exception is raised
+        :param retry_interval: number of seconds between each retry
+        :param keep_retry_history: if True, all retries results are kept and accessible in return result
+            default is False as we don't want to save by default all output for all retries especially for big output
         :raises TimeoutError: if command run longer than the specified timeout
         :raises TypeError: if `cmd` parameter is neither a string neither a list of string
         :raises SSHException: if current SSHSession is already closed
         :raises RunCmdError: if exit code of the command is different from 0 and raise_if_error is True
-        :return: a namedtuple containing `exit_code` and `output` of the remotely executed command
-        :rtype: collections.namedtuple(exit_code=int, output=str)
+        :return: a class inheriting from collections.namedtuple containing mainly `exit_code` and `output`
+            of the remotely executed command
+        :rtype: RunCmdResult
 
         Usage::
             >>> from jumpssh import SSHSession
@@ -265,72 +272,101 @@ class SSHSession(object):
         if silent is not True:
             logger.debug("Running command '%s' on '%s' as %s..." % (cmd_for_log, self.host, user))
 
-        channel = self.ssh_transport.open_session()
+        # keep track of all results for each run to make them available in response object
+        result_list = []
 
-        # raise error rather than blocking the call
-        channel.setblocking(0)
-
-        # Forward local agent
-        paramiko.agent.AgentRequestHandler(channel)
-        # Commands executed after this point will see the forwarded agent on the remote end.
-
-        channel.set_combine_stderr(True)
-        channel.get_pty()
-        channel.exec_command(my_cmd)
-
-        # prepare timer for timeout
-        start = datetime.datetime.now()
-        start_secs = time.mktime(start.timetuple())
-
-        output = StringIO()
+        # retry command until exit_code in success code list or max retry nb reached
+        retry_nb = 0
         while True:
-            got_chunk = False
-            readq, _, _ = select.select([channel], [], [], timeout)
-            for c in readq:
-                if c.recv_ready():
-                    data = channel.recv(len(c.in_buffer))
-                    output.write(data.decode('utf-8'))
-                    got_chunk = True
+            channel = self.ssh_transport.open_session()
 
-                    # print output all along the command is running
-                    if not silent and continuous_output and len(data) > 0:
-                        print(data)
+            # raise error rather than blocking the call
+            channel.setblocking(0)
 
-                    if input_data and channel.send_ready():
-                        # We received a potential prompt.
-                        for pattern in input_data.keys():
-                            # pattern text matching current output => send input data
-                            if re.search(pattern.encode('utf-8'), data):
-                                channel.send(input_data[pattern] + '\n')
+            # Forward local agent
+            paramiko.agent.AgentRequestHandler(channel)
+            # Commands executed after this point will see the forwarded agent on the remote end.
 
-            # remote process has exited and returned an exit status
-            if not got_chunk and channel.exit_status_ready() and not channel.recv_ready():
-                channel.shutdown_read()  # indicate that we're not going to read from this channel anymore
-                channel.close()
-                break  # exit as remote side is finished and our buffers are empty
+            channel.set_combine_stderr(True)
+            channel.get_pty()
+            channel.exec_command(my_cmd)
 
-            # Timeout check
-            if timeout:
-                now = datetime.datetime.now()
-                now_secs = time.mktime(now.timetuple())
-                et_secs = now_secs - start_secs
-                if et_secs > timeout:
-                    raise exception.TimeoutError(
-                        "Timeout of %ds reached when calling command '%s'. "
-                        "Increase timeout if you think the command was still running successfully."
-                        % (timeout, cmd_for_log))
+            # prepare timer for timeout
+            start = datetime.datetime.now()
+            start_secs = time.mktime(start.timetuple())
 
-        exit_code = channel.recv_exit_status()
-        output_value = output.getvalue().strip()
+            output = StringIO()
+            # wait until command finished running or timeout is reached
+            while True:
+                got_chunk = False
+                readq, _, _ = select.select([channel], [], [], timeout)
+                for c in readq:
+                    if c.recv_ready():
+                        data = channel.recv(len(c.in_buffer))
+                        output.write(data.decode('utf-8'))
+                        got_chunk = True
 
-        if raise_if_error and exit_code not in success_exit_code:
-            raise exception.RunCmdError(exit_code=exit_code,
-                                        success_exit_code=success_exit_code,
-                                        command=cmd_for_log,
-                                        error=output_value)
+                        # print output all along the command is running
+                        if not silent and continuous_output and len(data) > 0:
+                            print(data)
 
-        RunSSHCmdResult = collections.namedtuple('RunSSHCmdResult', 'exit_code output')
-        return RunSSHCmdResult(exit_code=exit_code, output=output_value)
+                        if input_data and channel.send_ready():
+                            # We received a potential prompt.
+                            for pattern in input_data.keys():
+                                # pattern text matching current output => send input data
+                                if re.search(pattern.encode('utf-8'), data):
+                                    channel.send(input_data[pattern] + '\n')
+
+                # remote process has exited and returned an exit status
+                if not got_chunk and channel.exit_status_ready() and not channel.recv_ready():
+                    channel.shutdown_read()  # indicate that we're not going to read from this channel anymore
+                    channel.close()
+                    break  # exit as remote side is finished and our buffers are empty
+
+                # Timeout check
+                if timeout:
+                    now = datetime.datetime.now()
+                    now_secs = time.mktime(now.timetuple())
+                    et_secs = now_secs - start_secs
+                    if et_secs > timeout:
+                        raise exception.TimeoutError(
+                            "Timeout of %ds reached when calling command '%s'. "
+                            "Increase timeout if you think the command was still running successfully."
+                            % (timeout, cmd_for_log))
+
+            exit_code = channel.recv_exit_status()
+            output_value = output.getvalue().strip()
+
+            # keep result of all runs is result, not only the last one
+            if keep_retry_history:
+                result_list.append(RunSSHCmdResult(exit_code=exit_code, output=output_value))
+
+            if exit_code in success_exit_code:
+                # command ran successfully, no retry needed
+                break
+            else:
+                if retry < 0 or retry_nb < retry:
+                    retry_nb += 1
+                    time.sleep(retry_interval)
+                    continue
+                # max retry reached and exception must be raised
+                elif raise_if_error:
+                    raise exception.RunCmdError(exit_code=exit_code,
+                                                success_exit_code=success_exit_code,
+                                                command=cmd_for_log,
+                                                error=output_value,
+                                                runs_nb=retry_nb+1)
+                else:
+                    # command ended in error but max retry already reached and no exception must be raised
+                    break
+
+        # return result of run command + all information used to run the command
+        return RunCmdResult(exit_code=exit_code,
+                            output=output_value,
+                            result_list=result_list,
+                            command=cmd_for_log,
+                            success_exit_code=success_exit_code,
+                            runs_nb=retry_nb+1)
 
     def get_cmd_output(self, cmd, **kwargs):
         """ Return output of remotely executed command
@@ -553,7 +589,7 @@ class SSHSession(object):
 
         # copy first remote file in a temporary location accessible from current user
         if use_sudo:
-            copy_path = "/tmp/%s" % ''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(15))
+            copy_path = "/tmp/%s" % util.id_generator(size=15)
             copy_command = "cp %s %s" % (remote_path, copy_path)
             self.run_cmd(copy_command, silent=True, username=sudo_username)
 
@@ -611,7 +647,7 @@ class SSHSession(object):
         copy_path = remote_path
         if use_sudo:
             # copy local file on remote host in temporary dir
-            copy_path = "/tmp/%s" % ''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(15))
+            copy_path = "/tmp/%s" % util.id_generator(size=15)
 
         # create file remotely
         with sftp_client.file(copy_path, mode='w+') as remote_file:
@@ -631,3 +667,43 @@ class SSHSession(object):
 
         if permissions:
             self.run_cmd("sudo chmod %s %s" % (permissions, remote_path), silent=True)
+
+
+RunSSHCmdResult = collections.namedtuple('RunSSHCmdResult', 'exit_code output')
+
+
+class RunCmdResult(RunSSHCmdResult):
+    """Result of a command run with SSHSession
+
+    :param exit_code: exit code of the run command (last run exit_code in case of retries)
+    :param output: output of the command run  (last run output only in case of retries)
+    :param command: the command run
+    :param result_list: list of RunSSHCmdResult, 1 item for each retry
+    :param success_exit_code: list of integer considered as a success exit code for command run
+    :param runs_nb: number of times the command has been run
+
+    Usage::
+
+        >>> result = ssh_session.run_cmd('hostname')
+
+        # access to both exit_code and command output using tuple
+        >>> (exit_code, output) = result
+
+        # access directly to single attributes
+        >>> result.exit_code
+        0
+
+        >>> result.output
+        u'gateway.example.com'
+
+        >>> result.command
+        'hostname'
+
+    """
+    def __new__(cls, exit_code, output, result_list, command, success_exit_code, runs_nb):
+        self = super(RunCmdResult, cls).__new__(cls, exit_code, output)
+        self.result_list = result_list
+        self.command = command
+        self.success_exit_code = success_exit_code
+        self.runs_nb = runs_nb
+        return self

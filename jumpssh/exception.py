@@ -36,10 +36,19 @@ class RunCmdError(SSHException):
     :ivar str command: The command that is generating this exception.
     :ivar str error: The error captured from the command output.
     """
-    def __init__(self, exit_code, success_exit_code, command, error):
-        super(RunCmdError, self).__init__('Command (%s) returned exit status (%s), expected [%s]: %s'
-                                          % (command, exit_code, ','.join(map(str, success_exit_code)), error))
+    def __init__(self, exit_code, success_exit_code, command, error, runs_nb=1):
+        message = 'Command (%s) returned exit status (%s), expected [%s]' \
+                  % (command, exit_code, ','.join(map(str, success_exit_code)))
+
+        if runs_nb > 1:
+            message += " after %s runs" % runs_nb
+
+        if error:
+            message += ": %s" % error
+
+        super(RunCmdError, self).__init__(message)
         self.exit_code = exit_code
         self.success_exit_code = success_exit_code
         self.command = command
         self.error = error
+        self.runs_nb = runs_nb

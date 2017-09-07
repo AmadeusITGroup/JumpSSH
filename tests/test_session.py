@@ -6,14 +6,12 @@ import errno
 import json
 import logging
 import os
-import random
-import string
 import socket
 
 import paramiko
 import pytest
 
-from jumpssh import exception, SSHSession
+from jumpssh import util, exception, SSHSession
 
 from . import util as tests_util
 
@@ -230,6 +228,40 @@ def test_run_cmd_success_exit_code(docker_env):
     gateway_session.run_cmd('hostname', success_exit_code=[0, 127])
 
 
+def test_run_cmd_retry(docker_env):
+    gateway_ip, gateway_port = docker_env.get_host_ip_port('gateway')
+
+    gateway_session = SSHSession(host=gateway_ip, port=gateway_port,
+                                 username='user1', password='password1').open()
+
+    with pytest.raises(exception.RunCmdError) as exc_info:
+        gateway_session.run_cmd('dummy commmand', retry=2, retry_interval=1)
+    assert exc_info.value.runs_nb == 3
+
+    # prepare command that append a character in file at each new run
+    temporary_filename1 = util.id_generator(size=7)
+    cmd = "echo -n 'p' >> {0} && grep 'pppp' {0}".format(temporary_filename1)
+
+    # command should still raise exception after 2 retries(=3 runs) as we except 4 p
+    with pytest.raises(exception.RunCmdError) as exc_info:
+        gateway_session.run_cmd(cmd, retry=2, retry_interval=1)
+    assert exc_info.value.runs_nb == 3
+
+    # same command should work fine with 3 retries(=4 runs)
+    temporary_filename2 = util.id_generator(size=8)
+    cmd = cmd.replace(temporary_filename1, temporary_filename2)
+    result = gateway_session.run_cmd(cmd, retry=3, retry_interval=1)
+
+    # by default no history kept
+    assert len(result.result_list) == 0
+
+    # check history is kept when requested
+    temporary_filename3 = util.id_generator(size=8)
+    cmd = cmd.replace(temporary_filename2, temporary_filename3)
+    result = gateway_session.run_cmd(cmd, retry=3, retry_interval=1, keep_retry_history=True)
+    assert len(result.result_list) == 4
+
+
 def test_get_cmd_output(docker_env):
     gateway_ip, gateway_port = docker_env.get_host_ip_port('gateway')
     gateway_session = SSHSession(host=gateway_ip, port=gateway_port,
@@ -440,7 +472,7 @@ def test_get(docker_env):
     os.remove(local_file_path)
 
     # download that file locally specifying local filename
-    local_file_path = '/tmp/downloaded_file_' + ''.join(random.choice(string.ascii_letters) for _ in range(20))
+    local_file_path = '/tmp/downloaded_file_' + util.id_generator(size=20)
     remotehost_session.get(remote_path=remote_path, local_path=local_file_path)
     os.remove(local_file_path)
 

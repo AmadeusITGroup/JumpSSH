@@ -4,11 +4,12 @@ import json
 import os
 import random
 import socket
-import string
 
 import docker
 import docker.errors
 import requests.exceptions
+
+from jumpssh import util as jumpssh_util
 
 
 class DockerEnv(object):
@@ -118,7 +119,7 @@ def create_random_json(size=1000):
     random.seed()
     dummy_json = {}
     for i in range(size):
-        random_key = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(15))
-        random_value = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(100))
+        random_key = jumpssh_util.id_generator(size=15)
+        random_value = jumpssh_util.id_generator(size=100)
         dummy_json[random_key] = random_value
     return dummy_json
