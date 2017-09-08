@@ -65,6 +65,7 @@ setup(
     tests_require=[
         'docker-py',
         'pytest',
-        'pytest-catchlog'
+        'pytest-catchlog',
+        'mock'
     ]
 )

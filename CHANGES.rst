@@ -6,6 +6,7 @@ Next release
 - ability to customize success exit code when calling run_cmd so that an exit code different from 0 do not raise
   any exception. Success exit code can be an int or even a list of int if several exit codes are considered a success.
 - ability to retry remote command until success or max retry is reached
+- ability to forward Ctrl-C to remote host in order to interrupt remote command before stopping local script
 
 1.2.1 (07/27/2017)
 ------------------

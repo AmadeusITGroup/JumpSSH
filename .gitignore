@@ -9,3 +9,4 @@ docs/_build/
 docs/html
 .idea/
 .eggs/
+.pyenv*
