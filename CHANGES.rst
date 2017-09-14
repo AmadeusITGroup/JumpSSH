@@ -1,5 +1,5 @@
-Next release
-------------
+1.3.0 (09/14/2017)
+------------------
 - allow to conceal part of the command run in logs specifying list of pattern in silent parameter (regexp format)
   For example, if a password is specified in command you may want to conceal it in logs but still want to log the
   rest of the command run
