@@ -3,3 +3,4 @@ docker-py>=1.10.6
 pytest>=3.0.4
 pytest-cov>=2.4.0
 pytest-catchlog>=1.2.2
+mock>=2.0.0

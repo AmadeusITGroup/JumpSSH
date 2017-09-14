@@ -296,43 +296,52 @@ class SSHSession(object):
             start_secs = time.mktime(start.timetuple())
 
             output = StringIO()
-            # wait until command finished running or timeout is reached
-            while True:
-                got_chunk = False
-                readq, _, _ = select.select([channel], [], [], timeout)
-                for c in readq:
-                    if c.recv_ready():
-                        data = channel.recv(len(c.in_buffer))
-                        output.write(data.decode('utf-8'))
-                        got_chunk = True
+            try:
+                # wait until command finished running or timeout is reached
+                while True:
+                    got_chunk = False
+                    readq, _, _ = select.select([channel], [], [], timeout)
+                    for c in readq:
+                        if c.recv_ready():
+                            data = channel.recv(len(c.in_buffer))
+                            output.write(data.decode('utf-8'))
+                            got_chunk = True
 
-                        # print output all along the command is running
-                        if not silent and continuous_output and len(data) > 0:
-                            print(data)
+                            # print output all along the command is running
+                            if not silent and continuous_output and len(data) > 0:
+                                print(data)
 
-                        if input_data and channel.send_ready():
-                            # We received a potential prompt.
-                            for pattern in input_data.keys():
-                                # pattern text matching current output => send input data
-                                if re.search(pattern.encode('utf-8'), data):
-                                    channel.send(input_data[pattern] + '\n')
+                            if input_data and channel.send_ready():
+                                # We received a potential prompt.
+                                for pattern in input_data.keys():
+                                    # pattern text matching current output => send input data
+                                    if re.search(pattern.encode('utf-8'), data):
+                                        channel.send(input_data[pattern] + '\n')
 
-                # remote process has exited and returned an exit status
-                if not got_chunk and channel.exit_status_ready() and not channel.recv_ready():
-                    channel.shutdown_read()  # indicate that we're not going to read from this channel anymore
-                    channel.close()
-                    break  # exit as remote side is finished and our buffers are empty
+                    # remote process has exited and returned an exit status
+                    if not got_chunk and channel.exit_status_ready() and not channel.recv_ready():
+                        channel.shutdown_read()  # indicate that we're not going to read from this channel anymore
+                        channel.close()
+                        break  # exit as remote side is finished and our buffers are empty
 
-                # Timeout check
-                if timeout:
-                    now = datetime.datetime.now()
-                    now_secs = time.mktime(now.timetuple())
-                    et_secs = now_secs - start_secs
-                    if et_secs > timeout:
-                        raise exception.TimeoutError(
-                            "Timeout of %ds reached when calling command '%s'. "
-                            "Increase timeout if you think the command was still running successfully."
-                            % (timeout, cmd_for_log))
+                    # Timeout check
+                    if timeout:
+                        now = datetime.datetime.now()
+                        now_secs = time.mktime(now.timetuple())
+                        et_secs = now_secs - start_secs
+                        if et_secs > timeout:
+                            raise exception.TimeoutError(
+                                "Timeout of %ds reached when calling command '%s'. "
+                                "Increase timeout if you think the command was still running successfully."
+                                % (timeout, cmd_for_log))
+            except KeyboardInterrupt:
+                # if channel still active, forward Ctrl-C to remote host if requested by user
+                if self.is_active() and util.yes_no_query("Terminate remote command '%s'?" % cmd_for_log,
+                                                          default=True,
+                                                          interrupt=False):
+                    # forward Ctrl-C to remote host
+                    channel.send('\x03')
+                raise
 
             exit_code = channel.recv_exit_status()
             output_value = output.getvalue().strip()

@@ -5,6 +5,10 @@ from __future__ import print_function
 import errno
 import json
 import logging
+try:
+    import unittest.mock as mock
+except ImportError:
+    import mock
 import os
 import socket
 
@@ -260,6 +264,59 @@ def test_run_cmd_retry(docker_env):
     cmd = cmd.replace(temporary_filename2, temporary_filename3)
     result = gateway_session.run_cmd(cmd, retry=3, retry_interval=1, keep_retry_history=True)
     assert len(result.result_list) == 4
+
+
+def test_run_cmd_interrupt_remote_command(docker_env, monkeypatch):
+    """Test behavior of run_cmd when user hit Contrl-C while a command is being executed remotely"""
+    gateway_ip, gateway_port = docker_env.get_host_ip_port('gateway')
+    gateway_session = SSHSession(host=gateway_ip, port=gateway_port,
+                                 username='user1', password='password1').open()
+
+    mock_input = '__builtin__.raw_input' if util.PY2 else 'builtins.input'
+
+    # 1. if user request to interrupt remote command
+    with pytest.raises(KeyboardInterrupt):
+        # raise KeyboardInterrupt while command is running
+        with mock.patch('select.select', side_effect=KeyboardInterrupt('Fake Ctrl-C')):
+            # request to terminate remote command simulating the user entering "Y" in the terminal
+            monkeypatch.setattr(mock_input, lambda x: "Y")
+            gateway_session.run_cmd('sleep 30')
+
+    # check command is no longer running on remote host
+    assert gateway_session.get_exit_code('ps aux | grep -v grep | grep "sleep 30"') == 1
+
+    # 2. user request to NOT interrupt remote command
+    with pytest.raises(KeyboardInterrupt):
+        # raise KeyboardInterrupt while command is running
+        with mock.patch('select.select', side_effect=KeyboardInterrupt('Fake Ctrl-C')):
+            # request to terminate remote command simulating the user entering "Y" in the terminal
+            monkeypatch.setattr(mock_input, lambda x: "N")
+            gateway_session.run_cmd('sleep 40')
+
+    # check command is still running on remote host
+    assert gateway_session.get_exit_code('ps aux | grep -v grep | grep "sleep 40"') == 0
+
+    # 3. user press enter (default value of util.yes_no_query used), we expect remote command to be stopped
+    with pytest.raises(KeyboardInterrupt):
+        # raise KeyboardInterrupt while command is running
+        with mock.patch('select.select', side_effect=KeyboardInterrupt('Fake Ctrl-C')):
+            # send empty string simulating the user pressing enter in the terminal
+            monkeypatch.setattr(mock_input, lambda x: '')
+            gateway_session.run_cmd('sleep 50')
+
+    # check command is no longer running on remote host
+    assert gateway_session.get_exit_code('ps aux | grep -v grep | grep "sleep 50"') == 1
+
+    # 4. user press Contrl-C twice, check remote command is still running
+    with pytest.raises(KeyboardInterrupt):
+        # raise KeyboardInterrupt while command is running
+        with mock.patch('select.select', side_effect=KeyboardInterrupt('Fake Ctrl-C')):
+            # user press a second time Contrl-C
+            with mock.patch(mock_input, side_effect=KeyboardInterrupt('2nd Fake Ctrl-C')):
+                gateway_session.run_cmd('sleep 60')
+
+    # check command is still running on remote host
+    assert gateway_session.get_exit_code('ps aux | grep -v grep | grep "sleep 60"') == 0
 
 
 def test_get_cmd_output(docker_env):
