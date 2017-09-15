@@ -339,8 +339,17 @@ class SSHSession(object):
                 if self.is_active() and util.yes_no_query("Terminate remote command '%s'?" % cmd_for_log,
                                                           default=True,
                                                           interrupt=False):
-                    # forward Ctrl-C to remote host
-                    channel.send('\x03')
+                    # channel has been closed pending response from user, we don't have access to remote server anymore
+                    if channel.closed:
+                        exit_code = channel.recv_exit_status()
+                        if exit_code == -1:
+                            logger.warning("Unable to terminate remote command because channel is closed.")
+                        else:
+                            logger.info("Remote command execution already finished with exit code %s" % exit_code)
+                    else:
+                        # forward Ctrl-C to remote host
+                        channel.send('\x03')
+                        channel.close()
                 raise
 
             exit_code = channel.recv_exit_status()
