@@ -1,3 +1,7 @@
+1.3.1 (09/15/2017)
+------------------
+- fix interruption of remote command when transport channel is already closed
+
 1.3.0 (09/14/2017)
 ------------------
 - allow to conceal part of the command run in logs specifying list of pattern in silent parameter (regexp format)
