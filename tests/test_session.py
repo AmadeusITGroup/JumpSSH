@@ -11,6 +11,7 @@ except ImportError:
     import mock
 import os
 import socket
+import time
 
 import paramiko
 import pytest
@@ -266,7 +267,7 @@ def test_run_cmd_retry(docker_env):
     assert len(result.result_list) == 4
 
 
-def test_run_cmd_interrupt_remote_command(docker_env, monkeypatch):
+def test_run_cmd_interrupt_remote_command(docker_env, monkeypatch, caplog):
     """Test behavior of run_cmd when user hit Contrl-C while a command is being executed remotely"""
     gateway_ip, gateway_port = docker_env.get_host_ip_port('gateway')
     gateway_session = SSHSession(host=gateway_ip, port=gateway_port,
@@ -289,7 +290,7 @@ def test_run_cmd_interrupt_remote_command(docker_env, monkeypatch):
     with pytest.raises(KeyboardInterrupt):
         # raise KeyboardInterrupt while command is running
         with mock.patch('select.select', side_effect=KeyboardInterrupt('Fake Ctrl-C')):
-            # request to terminate remote command simulating the user entering "Y" in the terminal
+            # request to terminate remote command simulating the user entering "N" in the terminal
             monkeypatch.setattr(mock_input, lambda x: "N")
             gateway_session.run_cmd('sleep 40')
 
@@ -317,6 +318,29 @@ def test_run_cmd_interrupt_remote_command(docker_env, monkeypatch):
 
     # check command is still running on remote host
     assert gateway_session.get_exit_code('ps aux | grep -v grep | grep "sleep 60"') == 0
+
+    # 5. user press Contrl-C once but take time to answer if remote must be closed or not, and channel is closed
+    # so we cannot terminate remote command but remote command finished its execution
+    with pytest.raises(KeyboardInterrupt):
+        # raise KeyboardInterrupt while command is running
+        with mock.patch('select.select', side_effect=KeyboardInterrupt('Fake Ctrl-C')):
+            # request to terminate remote command simulating the user entering "Y" in the terminal
+            # but user answered after 4s while command finished after 3s so underline channel is already closed
+            # and command still successfully run
+            monkeypatch.setattr(mock_input, lambda x: time.sleep(4) or "Y")
+            gateway_session.run_cmd('sleep 3')
+    assert 'Remote command execution already finished with exit code' in caplog.text
+
+    # 6. user press Contrl-C once but take time to answer if remote must be closed or not, and channel is closed
+    # so we cannot terminate remote command and channel does't not have more information about remote command execution
+    with pytest.raises(KeyboardInterrupt):
+        # raise KeyboardInterrupt while command is running
+        with mock.patch('select.select', side_effect=KeyboardInterrupt('Fake Ctrl-C')):
+            # request to terminate remote command simulating the user entering "Y" in the terminal
+            # but user answered after 4s while command finished after 3s so underline channel is already closed
+            monkeypatch.setattr('paramiko.channel.Channel.recv_exit_status', lambda x: -1)
+            gateway_session.run_cmd('sleep 3')
+    assert 'Unable to terminate remote command because channel is closed.' in caplog.text
 
 
 def test_get_cmd_output(docker_env):
