@@ -303,8 +303,8 @@ class SSHSession(object):
                     readq, _, _ = select.select([channel], [], [], timeout)
                     for c in readq:
                         if c.recv_ready():
-                            data = channel.recv(len(c.in_buffer))
-                            output.write(data.decode('utf-8'))
+                            data = channel.recv(len(c.in_buffer)).decode('utf-8')
+                            output.write(data)
                             got_chunk = True
 
                             # print output all along the command is running
@@ -315,7 +315,7 @@ class SSHSession(object):
                                 # We received a potential prompt.
                                 for pattern in input_data.keys():
                                     # pattern text matching current output => send input data
-                                    if re.search(pattern.encode('utf-8'), data):
+                                    if re.search(pattern, data):
                                         channel.send(input_data[pattern] + '\n')
 
                     # remote process has exited and returned an exit status

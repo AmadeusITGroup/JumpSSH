@@ -161,6 +161,7 @@ def test_run_cmd(docker_env, capfd):
     gateway_session.run_cmd('ls -lta /', continuous_output=True)
     out, err = capfd.readouterr()
     assert len(out) > 0
+    assert isinstance(out, unicode if util.PY2 else str)  # noqa: unicode only exists in python 2
 
 
 def test_run_cmd_sudo(docker_env):
