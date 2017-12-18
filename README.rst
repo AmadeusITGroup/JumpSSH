@@ -36,18 +36,21 @@ What
 `JumpSSH` is a module for Python 2.7+/3.4+ that can be used to run commands on remote servers through a gateway.
 
 It is based on `paramiko library <http://www.paramiko.org>`_.
-It provides the ability to execute commands on hosts that are not directly accessible but only through one or more servers.
+It provides the ability to execute commands on hosts that are not directly accessible but only through one or
+more servers.
 Script does not need to be uploaded on a remote server and can be run locally.
 
 Several authentication methods are supported (password, ssh key).
 
 Commands can be run through several jump servers before reaching the remote server.
-No need to establish a session for each command, a single ssh session can run as many command as you want, including parallel queries, and you will get result for each command independently.
+No need to establish a session for each command, a single ssh session can run as many command as you want,
+including parallel queries, and you will get result for each command independently.
 
 So, why another python library to setup remote server through ssh ? Here is a quick comparison with the most known existing python libraries
  - Paramiko: provide very good implementation of SSHv2 protocol in python but with a low level api a bit complex
  - Ansible: require more configuration and understanding to start.
-   Moreover, support of bastion host is done with modification of local ssh config to use ProxyCommand, and this is needed for each bastion host.
+   Moreover, support of bastion host is done with modification of local ssh config to use ProxyCommand, and this is
+   needed for each bastion host.
  - Fabric: use of jump server is much easier than Ansible thanks to 'env.gateway' parameter, but does not allow jump through several servers.
 
 Installation
@@ -130,7 +133,8 @@ remote files operations:
 
 Tests
 -----
-jumpssh tests require docker, check `docker documentation <https://docs.docker.com>`_ for how to install it depending on your OS.
+jumpssh tests require docker, check `docker documentation <https://docs.docker.com>`_ for how to install it
+depending on your OS.
 it also requires few python packages. To install them, run:
 
 .. code:: bash
@@ -148,3 +152,22 @@ or simply:
 .. code:: bash
 
     $ tox
+
+
+Contributing
+------------
+
+Bug Reports
+^^^^^^^^^^^
+Bug reports are hugely important! Before you raise one, though,
+please check through the `GitHub issues <https://github.com/AmadeusITGroup/JumpSSH/issues>`_,
+both open and closed, to confirm that the bug hasn't been reported before.
+
+Feature Requests
+^^^^^^^^^^^^^^^^
+If you think a feature is missing and could be useful in this module, feel free to raise a feature request through the
+`GitHub issues <https://github.com/AmadeusITGroup/JumpSSH/issues>`_
+
+Code Contributions
+^^^^^^^^^^^^^^^^^^
+When contributing code, please follow `this project-agnostic contribution guide <http://contribution-guide.org/>`_.
