@@ -10,3 +10,4 @@ docs/html
 .idea/
 .eggs/
 .pyenv*
+venv
