@@ -1,3 +1,8 @@
+1.3.2 (12/17/2017)
+------------------
+- [Bug] :issue:`23`: do not print `byte` but `str` in continuous output when running command with python3.
+  Thanks to :user:`nicholasbishop` for the report.
+
 1.3.1 (09/15/2017)
 ------------------
 - fix interruption of remote command when transport channel is already closed
