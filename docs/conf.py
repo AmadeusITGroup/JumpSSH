@@ -42,7 +42,8 @@ with open(config_file_path) as fp:
 extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.intersphinx',
               'sphinx.ext.coverage',
-              'sphinx.ext.viewcode']
+              'sphinx.ext.viewcode',
+              'sphinx_issues',]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -165,3 +166,7 @@ texinfo_documents = [
 # Configuration for intersphinx.
 intersphinx_mapping = {'https://docs.python.org/': None,
                        'http://docs.paramiko.org/en/stable/': None}
+
+
+# Github repo (sphinx_issues extension)
+issues_github_path = 'AmadeusITGroup/JumpSSH'
