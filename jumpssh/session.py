@@ -48,7 +48,8 @@ class SSHSession(object):
             private_key_file=None,
             port=SSH_PORT,
             password=None,
-            missing_host_key_policy=None
+            missing_host_key_policy=None,
+            compress=False
     ):
         self.host = host
         self.port = port
@@ -57,7 +58,7 @@ class SSHSession(object):
         self.retry_nb = 0
         self.proxy_transport = proxy_transport
         self.private_key_file = private_key_file
-
+        self.compress = compress
         self.ssh_remote_sessions = {}
 
         self.ssh_client = paramiko.client.SSHClient()
@@ -141,7 +142,8 @@ class SSHSession(object):
                                         username=self.username,
                                         sock=ssh_channel,
                                         key_filename=self.private_key_file,
-                                        password=self.password)
+                                        password=self.password,
+                                        compress=self.compress)
 
                 # no exception raised => connected to remote host
                 break
