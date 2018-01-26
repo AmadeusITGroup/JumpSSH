@@ -432,7 +432,8 @@ class SSHSession(object):
             private_key_file=None,
             port=SSH_PORT,
             password=None,
-            retry_interval=10
+            retry_interval=10,
+            compress=False
     ):
         """ Establish connection with a remote host from current session
 
@@ -490,7 +491,8 @@ class SSHSession(object):
                                     proxy_transport=self.ssh_transport,
                                     private_key_file=private_key_file,
                                     port=port,
-                                    password=password).open(retry=retry,
+                                    password=password,
+                                    compress=compress).open(retry=retry,
                                                             retry_interval=retry_interval)
 
         # keep reference to opened session, to be able to reuse it later
