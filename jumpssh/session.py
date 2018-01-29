@@ -34,6 +34,7 @@ class SSHSession(object):
     :param missing_host_key_policy: set policy to use when connecting to servers without a known host key.
         This parameter is a class **instance** of type
         :class:`paramiko.client.MissingHostKeyPolicy <paramiko.client.MissingHostKeyPolicy>`, not a **classes** itself
+    :param compress: set to True to turn on compression for this session
 
     Usage::
 
@@ -444,6 +445,7 @@ class SSHSession(object):
         :param port: port to connect to the remote host (default 22)
         :param password: password to be used for authentication with remote host
         :param retry_interval: number of seconds between each retry
+        :param compress: set to True to turn on compression for this session
         :return: session object of the remote host
         :rtype: SSHSession
 
