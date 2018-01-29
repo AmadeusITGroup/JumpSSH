@@ -1,3 +1,8 @@
+1.4.0 (01/29/2018)
+------------------
+- [Feature] :issue:`29`: Expose compression support from Paramiko (inherited from SSH).
+  Thanks to :user:`fmaupas` for the contribution.
+
 1.3.2 (12/17/2017)
 ------------------
 - [Bug] :issue:`23`: do not print `byte` but `str` in continuous output when running command with python3.
