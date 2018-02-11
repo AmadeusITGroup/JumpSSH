@@ -180,6 +180,7 @@ def test_run_cmd_sudo(docker_env):
 
 
 def test_run_cmd_silent(docker_env, caplog):
+    caplog.set_level(logging.DEBUG)
     gateway_ip, gateway_port = docker_env.get_host_ip_port('gateway')
 
     gateway_session = SSHSession(host=gateway_ip, port=gateway_port,
@@ -269,6 +270,7 @@ def test_run_cmd_retry(docker_env):
 
 
 def test_run_cmd_interrupt_remote_command(docker_env, monkeypatch, caplog):
+    caplog.set_level(logging.DEBUG)
     """Test behavior of run_cmd when user hit Contrl-C while a command is being executed remotely"""
     gateway_ip, gateway_port = docker_env.get_host_ip_port('gateway')
     gateway_session = SSHSession(host=gateway_ip, port=gateway_port,
