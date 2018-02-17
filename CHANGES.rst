@@ -1,3 +1,7 @@
+Next release
+------------
+- [Bug] :issue:`33`: Fix download of file owned by root with `SSHSession.get`
+
 1.4.0 (01/29/2018)
 ------------------
 - [Feature] :issue:`29`: Expose compression support from Paramiko (inherited from SSH).

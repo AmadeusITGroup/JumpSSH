@@ -560,10 +560,14 @@ def test_get(docker_env):
     remotehost_session.get(remote_path=remote_path, local_path=local_file_path)
     os.remove(local_file_path)
 
-    # get remote file from location not accessible from current user
+    # get remote file from location not accessible from current user and owned by root
     local_folder = '/tmp/'
     restricted_remote_path = os.path.join('/etc', remote_path)
-    remotehost_session.run_cmd('sudo mv %s %s' % (remote_path, restricted_remote_path))
+    remotehost_session.run_cmd([
+        'sudo mv %s %s' % (remote_path, restricted_remote_path),
+        'sudo chown root:root %s' % restricted_remote_path,
+        'sudo chmod 700 %s' % restricted_remote_path,
+    ])
     remotehost_session.get(remote_path=restricted_remote_path, local_path=local_folder, use_sudo=True)
     local_file_path = os.path.join(local_folder, os.path.basename(remote_path))
     assert os.path.isfile(local_file_path)

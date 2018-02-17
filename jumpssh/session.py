@@ -612,10 +612,12 @@ class SSHSession(object):
         sudo_username = username if username else 'root' if use_sudo else None
 
         # copy first remote file in a temporary location accessible from current user
+        # making sure current user own this file
         if use_sudo:
             copy_path = "/tmp/%s" % util.id_generator(size=15)
-            copy_command = "cp %s %s" % (remote_path, copy_path)
-            self.run_cmd(copy_command, silent=True, username=sudo_username)
+            self.run_cmd(["cp %s %s" % (remote_path, copy_path),
+                          "chown $USER:$USER %s" % copy_path],
+                         silent=True, username=sudo_username)
 
         # if local download path is a directory, local filename will be same as remote
         if os.path.isdir(local_path):
