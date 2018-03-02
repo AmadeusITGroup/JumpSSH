@@ -196,7 +196,8 @@ class SSHSession(object):
             success_exit_code=0,
             retry=0,
             retry_interval=5,
-            keep_retry_history=False
+            keep_retry_history=False,
+            get_pty=True
     ):
         """ Run command on the remote host and return result locally
 
@@ -221,6 +222,11 @@ class SSHSession(object):
         :param retry_interval: number of seconds between each retry
         :param keep_retry_history: if True, all retries results are kept and accessible in return result
             default is False as we don't want to save by default all output for all retries especially for big output
+        :param get_pty: if True, Request a pseudo-terminal from the server. This is usually used right after creating a client channel, 
+            to ask the server to provide some basic terminal semantics for a shell invoked with invoke_shell.
+            A practical example would be to set it to true to ensure all processes created on remote server are stop while closing the connection.
+            If processes need to keep running after session is closed - set this param to False.
+            default is True for backward compatibility.
         :raises TimeoutError: if command run longer than the specified timeout
         :raises TypeError: if `cmd` parameter is neither a string neither a list of string
         :raises SSHException: if current SSHSession is already closed
@@ -288,7 +294,11 @@ class SSHSession(object):
             # Commands executed after this point will see the forwarded agent on the remote end.
 
             channel.set_combine_stderr(True)
-            channel.get_pty()
+            #Ensure pseudo terminal is created on remote server.
+            #This means all processes will be kill when session is closed.
+            if get_pty:
+                channel.get_pty()
+
             channel.exec_command(my_cmd)
 
             # prepare timer for timeout
