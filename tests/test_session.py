@@ -516,6 +516,7 @@ def test_put(docker_env):
         # copy file on remote session
         remote_path = '/tmp/random_file'
         assert remotehost_session.exists(remote_path) is False
+        remotehost_session.close()
         remotehost_session.put(local_path=local_path, remote_path=remote_path)
         assert remotehost_session.exists(remote_path) is True
 
