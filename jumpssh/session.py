@@ -581,6 +581,9 @@ class SSHSession(object):
         logger.debug("Copy local file '%s' on remote host '%s' in '%s' as '%s'"
                      % (local_path, self.host, remote_path, self.username))
 
+        # ensure the connection is open
+        self.open()
+	
         # create file remotely
         with open(local_path, 'rb') as local_file:
             self.file(remote_path=remote_path, content=local_file.read(),
