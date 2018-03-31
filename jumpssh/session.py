@@ -583,7 +583,7 @@ class SSHSession(object):
 
         # ensure the connection is open
         self.open()
-	
+
         # create file remotely
         with open(local_path, 'rb') as local_file:
             self.file(remote_path=remote_path, content=local_file.read(),
