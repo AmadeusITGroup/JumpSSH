@@ -668,10 +668,10 @@ class SSHSession(object):
         """
         if not silent:
             logger.debug("Create file '%s' on remote host '%s' as '%s'" % (remote_path, self.host, self.username))
-        
+
         # ensure the connection is open
         self.open()
-        
+
         sftp_client = self.get_sftp_client()
 
         copy_path = remote_path
