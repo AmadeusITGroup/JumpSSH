@@ -500,6 +500,10 @@ def test_put(docker_env):
                                                             port=remotehost_port,
                                                             username='user1',
                                                             password='password1')
+    remotehost_session2 = gateway_session.get_remote_session(host=tests_util.get_host_ip(),
+                                                            port=remotehost_port,
+                                                            username='user1',
+                                                            password='password1')
     # exception is raised when local file does not exist
     local_path = 'missing_folder/missing_path'
     with pytest.raises(IOError) as excinfo:
@@ -518,6 +522,14 @@ def test_put(docker_env):
         assert remotehost_session.exists(remote_path) is False
         remotehost_session.put(local_path=local_path, remote_path=remote_path)
         assert remotehost_session.exists(remote_path) is True
+
+        # Cleaning file using current session to
+        # ensure that even if no action was performed before
+        # the put works properly
+        remotehost_session.run_cmd('rm %s'%remote_path)
+        assert remotehost_session.exists(remote_path) is False
+        remotehost_session2.put(local_path=local_path, remote_path=remote_path)
+        assert remotehost_session2.exists(remote_path) is True
 
         # copy file on remote session as user2 with specific file permissions
         remote_path = '/tmp/random_file2'
