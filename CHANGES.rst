@@ -1,6 +1,7 @@
-Next release
-------------
+1.4.1 (03/31/2018)
+------------------
 - [Bug] :issue:`33`: Fix download of file owned by root with `SSHSession.get`
+- [Bug] : Automatically open closed session when calling SSHSession.put. Thanks to :user:`fmaupas` for the fix.
 
 1.4.0 (01/29/2018)
 ------------------
