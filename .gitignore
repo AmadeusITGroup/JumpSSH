@@ -11,3 +11,4 @@ docs/html
 .eggs/
 .pyenv*
 venv
+.pytest_cache/

@@ -2,6 +2,7 @@
 import os
 import json
 import logging
+import re
 try:
     from urllib import quote_plus  # Python2
 except ImportError:
@@ -18,6 +19,22 @@ except ImportError:
 from . import exception, SSHSession
 
 logger = logging.getLogger(__name__)
+
+# list of ANSI escape sequence based on http://ascii-table.com/ansi-escape-sequences-vt-100.php
+ANSI_REGEX = r'\x1b(' \
+             r'(\[\??\d+[hl])|' \
+             r'([=<>a-kzNM78])|' \
+             r'([\(\)][a-b0-2])|' \
+             r'(\[\d{0,2}[ma-dgkjqi])|' \
+             r'(\[\d+;\d+[hfy]?)|' \
+             r'(\[;?[hf])|' \
+             r'(#[3-68])|' \
+             r'([01356]n)|' \
+             r'(O[mlnp-z]?)|' \
+             r'(/Z)|' \
+             r'(\d+)|' \
+             r'(\[\?\d;\d0c)|' \
+             r'(\d;\dR))'
 
 
 class RestSshClient(object):
@@ -262,8 +279,19 @@ class HTTPResponse:
         # so this is failing when receiving for example b'\r\r\n'
         # the change python made to break it in 2.7.13 can be seen here
         # https://fossies.org/diffs/Python/2.7.12_vs_2.7.13/Lib/httplib.py-diff.html
-        raw_response = str_response.replace('\r\r\n', '\r\n').encode('utf-8')
-        socket = FakeSocket(raw_response)
+        raw_response = str_response.replace('\r\r\n', '\r\n')
+
+        # make sure any unexpected ansi character added in headers are removed as preventing proper parsing of response
+        socket_response = raw_response.split('\n\n', 1)
+        if len(socket_response) == 1:
+            header = socket_response[0]
+            body = ''
+        else:
+            header, body = socket_response
+        ansi_escape = re.compile(ANSI_REGEX, flags=re.IGNORECASE)
+        socket_response = ansi_escape.sub('', header) + '\n\n' + body
+
+        socket = FakeSocket(socket_response.encode('utf-8'))
         response = http_HTTPResponse(socket)
         response.begin()
         return response
