@@ -14,13 +14,13 @@ JumpSSH
 .. image:: https://readthedocs.org/projects/jumpssh/badge?version=latest
     :target: https://jumpssh.readthedocs.io?badge=latest
 
-.. image:: https://sonarcloud.io/api/badges/gate?key=amadeusitgroup_jumpssh&template=FLAT
+.. image:: https://sonarcloud.io/api/project_badges/measure?project=amadeusitgroup_jumpssh&metric=bugs
     :target: https://sonarcloud.io/dashboard?id=amadeusitgroup_jumpssh
 
-.. image:: https://sonarcloud.io/api/badges/measure?key=amadeusitgroup_jumpssh&metric=bugs&template=FLAT
+.. image:: https://sonarcloud.io/api/project_badges/measure?project=amadeusitgroup_jumpssh&metric=vulnerabilities
     :target: https://sonarcloud.io/dashboard?id=amadeusitgroup_jumpssh
 
-.. image:: https://sonarcloud.io/api/badges/measure?key=amadeusitgroup_jumpssh&metric=vulnerabilities&template=FLAT
+.. image:: https://sonarcloud.io/api/project_badges/quality_gate?project=amadeusitgroup_jumpssh
     :target: https://sonarcloud.io/dashboard?id=amadeusitgroup_jumpssh
 
 
