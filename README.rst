@@ -20,9 +20,6 @@ JumpSSH
 .. image:: https://sonarcloud.io/api/project_badges/measure?project=amadeusitgroup_jumpssh&metric=vulnerabilities
     :target: https://sonarcloud.io/dashboard?id=amadeusitgroup_jumpssh
 
-.. image:: https://sonarcloud.io/api/project_badges/quality_gate?project=amadeusitgroup_jumpssh
-    :target: https://sonarcloud.io/dashboard?id=amadeusitgroup_jumpssh
-
 
 :JumpSSH:          Python module to run commands on remote servers
 :Copyright:        Copyright (c) 2017 Amadeus sas
