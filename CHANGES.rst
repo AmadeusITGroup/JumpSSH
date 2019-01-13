@@ -1,3 +1,7 @@
+1.5.0 (01/13/2019)
+------------------
+- [Feature] :issue:`43`: Ability to use any parameter of paramiko.client.SSHClient.connect in SSHSession.
+
 1.4.1 (03/31/2018)
 ------------------
 - [Bug] :issue:`33`: Fix download of file owned by root with `SSHSession.get`

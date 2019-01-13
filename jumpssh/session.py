@@ -20,7 +20,7 @@ SSH_PORT = 22
 
 
 class SSHSession(object):
-    """Establish SSH session with a remote host
+    r"""Establish SSH session with a remote host
 
     :param host: name or ip of the remote host
     :param username: user to be used for remote ssh session
@@ -33,8 +33,11 @@ class SSHSession(object):
     :param password: password to be used for authentication with remote host
     :param missing_host_key_policy: set policy to use when connecting to servers without a known host key.
         This parameter is a class **instance** of type
-        :class:`paramiko.client.MissingHostKeyPolicy <paramiko.client.MissingHostKeyPolicy>`, not a **classes** itself
+        :class:`paramiko.client.MissingHostKeyPolicy <paramiko.client.MissingHostKeyPolicy>`, not a **class** itself
     :param compress: set to True to turn on compression for this session
+    :param \**kwargs: any parameter taken by
+        :meth:`paramiko.client.SSHClient.connect <paramiko.client.SSHClient.connect>`
+        and not already explicitly covered by `SSHSession`
 
     Usage::
 
@@ -50,7 +53,8 @@ class SSHSession(object):
             port=SSH_PORT,
             password=None,
             missing_host_key_policy=None,
-            compress=False
+            compress=False,
+            **kwargs
     ):
         self.host = host
         self.port = port
@@ -60,6 +64,10 @@ class SSHSession(object):
         self.proxy_transport = proxy_transport
         self.private_key_file = private_key_file
         self.compress = compress
+
+        # get input key/value parameters from user, they will be given to paramiko.client.SSHClient.connect
+        self.extra_parameters = kwargs
+
         self.ssh_remote_sessions = {}
 
         self.ssh_client = paramiko.client.SSHClient()
@@ -137,14 +145,19 @@ class SSHSession(object):
                     hostname = self.host
                     port = self.port
 
+                # update with existing default values from SSHSession
+                self.extra_parameters.update({
+                    'hostname': hostname,
+                    'port': port,
+                    'username': self.username,
+                    'compress': self.compress,
+                    'key_filename': self.private_key_file,
+                    'password': self.password,
+                    'sock': ssh_channel,
+                })
+
                 # connect to the host
-                self.ssh_client.connect(hostname=hostname,
-                                        port=port,
-                                        username=self.username,
-                                        sock=ssh_channel,
-                                        key_filename=self.private_key_file,
-                                        password=self.password,
-                                        compress=self.compress)
+                self.ssh_client.connect(**self.extra_parameters)
 
                 # no exception raised => connected to remote host
                 break
