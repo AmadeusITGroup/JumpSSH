@@ -208,7 +208,7 @@ def test_run_cmd_silent(docker_env, caplog):
     # check data is concealed when silent is a list with regexp
     text = 'another text   to   test    regexp'
     cmd = "echo '%s'" % text
-    assert gateway_session.run_cmd(cmd, silent=['\s+']).output == text
+    assert gateway_session.run_cmd(cmd, silent=[r'\s+']).output == text
     assert cmd not in caplog.text
     assert 'anotherXXXXXXXtextXXXXXXXtoXXXXXXXtestXXXXXXXregexp' in caplog.text
 
