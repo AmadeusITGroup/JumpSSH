@@ -12,7 +12,7 @@ set -e
 
 
 # We don't want to run X times the same analysis because of the matrix configuration
-if [ "${TRAVIS_PYTHON_VERSION}" != "pypy-5.6.0" ]; then
+if [ "${TRAVIS_PYTHON_VERSION}" != "pypy2.7-6.0" ] && [ "${TRAVIS_PYTHON_VERSION}" != "pypy3.5-6.0" ]; then
 	echo "Duplicated run detected, skipping the SonarQube analysis... (currently running ${TRAVIS_PYTHON_VERSION})"
 	exit 0
 fi
