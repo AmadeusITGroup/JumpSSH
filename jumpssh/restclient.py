@@ -184,70 +184,70 @@ class RestSshClient(object):
         return HTTPResponse(output)
 
     def get(self, uri, **kwargs):
-        """Sends a GET request.
+        r"""Sends a GET request.
 
         :param uri: URL of the http request.
-        :param \*\*kwargs: Optional arguments that :func:`~request` takes.
+        :param \**kwargs: Optional arguments that :func:`~request` takes.
         :return: :class:`HTTPResponse <HTTPResponse>` object
         :rtype: restclient.HTTPResponse
         """
         return self.request('get', uri, **kwargs)
 
     def options(self, uri, **kwargs):
-        """Sends a OPTIONS request.
+        r"""Sends a OPTIONS request.
 
         :param uri: URL of the http request.
-        :param \*\*kwargs: Optional arguments that :func:`~request` takes.
+        :param \**kwargs: Optional arguments that :func:`~request` takes.
         :return: :class:`HTTPResponse <HTTPResponse>` object
         :rtype: restclient.HTTPResponse
         """
         return self.request('options', uri, **kwargs)
 
     def head(self, uri, **kwargs):
-        """Sends a HEAD request.
+        r"""Sends a HEAD request.
 
         :param uri: URL of the http request.
-        :param \*\*kwargs: Optional arguments that :func:`~request` takes.
+        :param \**kwargs: Optional arguments that :func:`~request` takes.
         :return: :class:`HTTPResponse <HTTPResponse>` object
         :rtype: restclient.HTTPResponse
         """
         return self.request('head', uri, **kwargs)
 
     def post(self, uri, **kwargs):
-        """Sends a POST request.
+        r"""Sends a POST request.
 
         :param uri: URL of the http request.
-        :param \*\*kwargs: Optional arguments that :func:`~request` takes.
+        :param \**kwargs: Optional arguments that :func:`~request` takes.
         :return: :class:`HTTPResponse <HTTPResponse>` object
         :rtype: restclient.HTTPResponse
         """
         return self.request('post', uri, **kwargs)
 
     def put(self, uri, **kwargs):
-        """Sends a PUT request.
+        r"""Sends a PUT request.
 
         :param uri: URL of the http request.
-        :param \*\*kwargs: Optional arguments that :func:`~request` takes.
+        :param \**kwargs: Optional arguments that :func:`~request` takes.
         :return: :class:`HTTPResponse <HTTPResponse>` object
         :rtype: restclient.HTTPResponse
         """
         return self.request('put', uri, **kwargs)
 
     def patch(self, uri, **kwargs):
-        """Sends a PATCH request.
+        r"""Sends a PATCH request.
 
         :param uri: URL of the http request.
-        :param \*\*kwargs: Optional arguments that :func:`~request` takes.
+        :param \**kwargs: Optional arguments that :func:`~request` takes.
         :return: :class:`HTTPResponse <HTTPResponse>` object
         :rtype: restclient.HTTPResponse
         """
         return self.request('patch', uri, **kwargs)
 
     def delete(self, uri, **kwargs):
-        """Sends a DELETE request.
+        r"""Sends a DELETE request.
 
         :param uri: URL of the http request.
-        :param \*\*kwargs: Optional arguments that :func:`~request` takes.
+        :param \**kwargs: Optional arguments that :func:`~request` takes.
         :return: :class:`HTTPResponse <HTTPResponse>` object
         :rtype: restclient.HTTPResponse
         """
