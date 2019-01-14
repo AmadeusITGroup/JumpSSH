@@ -1,4 +1,4 @@
-1.5.0 (01/13/2019)
+1.5.1 (01/14/2019)
 ------------------
 - [Feature] :issue:`43`: Ability to use any parameter of paramiko.client.SSHClient.connect in SSHSession.
 
