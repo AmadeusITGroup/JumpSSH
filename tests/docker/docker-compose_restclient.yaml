@@ -1,0 +1,20 @@
+version: '3'
+services:
+    gateway:
+        image: jumpssh/image_sshd
+        build: ./image_sshd
+        hostname: gateway
+        networks:
+            - sshnet1
+        ports:
+            # only gateway is exposing port externally
+            - '22'
+    remotehost:
+        image: jumpssh/image_restserver
+        build: ./image_restserver
+        hostname: remotehost
+        networks:
+            - sshnet1
+
+networks:
+    sshnet1: null

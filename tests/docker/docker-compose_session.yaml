@@ -1,0 +1,34 @@
+version: '3'
+services:
+    # gateway is the only accessible machine
+    gateway:
+        image: jumpssh/image_sshd
+        build: ./image_sshd
+        hostname: gateway
+        networks:
+            - sshnet1
+        ports:
+            # only gateway is exposing port externally
+            - '22'
+
+    # remotehost reachable by both gateway and remotehost2
+    remotehost:
+        image: jumpssh/image_sshd
+        build: ./image_sshd
+        hostname: remotehost
+        networks:
+            - sshnet1
+            - sshnet2
+
+    # remotehost2 only reachable from remotehost
+    remotehost2:
+        image: jumpssh/image_sshd
+        build: ./image_sshd
+        hostname: remotehost2
+        networks:
+            - sshnet2
+
+networks:
+    sshnet1: null
+    sshnet2: null
+

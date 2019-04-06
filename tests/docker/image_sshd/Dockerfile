@@ -1,11 +1,14 @@
 FROM alpine:latest
 
-# install base paskages
+# install base packages
 RUN apk --update add openssh sudo curl
 
-# allow root login
+# allow root login and tunnel device forwarding
 RUN sed -i s/#PermitRootLogin.*/PermitRootLogin\ yes/ /etc/ssh/sshd_config \
   && echo "root:password" | chpasswd \
+  && sed -i s/#PermitTunnel.*/PermitTunnel\ yes/ /etc/ssh/sshd_config \
+  && sed -i s/AllowTcpForwarding.*/AllowTcpForwarding\ yes/ /etc/ssh/sshd_config \
+  && sed -i s/#PermitOpen.*/PermitOpen\ any/ /etc/ssh/sshd_config \
   && rm -rf /tmp/* /var/cache/apk/*
 
 ## create individual user accounts

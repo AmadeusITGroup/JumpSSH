@@ -26,13 +26,9 @@ logging.basicConfig()
 
 @pytest.fixture(scope="module")
 def docker_env():
-    my_docker_env = tests_util.DockerEnv()
-    my_docker_env.start_host('image_sshd', 'gateway')
-    my_docker_env.start_host('image_sshd', 'remotehost')
-    my_docker_env.start_host('image_sshd', 'remotehost2')
-    yield my_docker_env  # provide the fixture value
-    print("teardown docker_env")
-    my_docker_env.clean()
+    docker_compose_env = tests_util.DockerEnv(os.path.join("docker", "docker-compose_session.yaml"))
+    yield docker_compose_env
+    docker_compose_env.clean()
 
 
 def test_unknown_host():
@@ -46,7 +42,7 @@ def test_unknown_host():
 
 
 def test_active_close_session(docker_env):
-    gateway_ip, gateway_port = docker_env.get_host_ip_port('gateway')
+    gateway_ip, gateway_port = docker_env.get_host_ip_port()
 
     gateway_session = SSHSession(host=gateway_ip, port=gateway_port,
                                  username='user1', password='password1').open()
@@ -56,8 +52,7 @@ def test_active_close_session(docker_env):
     gateway_session.open()
     assert gateway_session.is_active()
 
-    remotehost_ip, remotehost_port = docker_env.get_host_ip_port('remotehost')
-    remotehost_session = gateway_session.get_remote_session(host=tests_util.get_host_ip(), port=remotehost_port,
+    remotehost_session = gateway_session.get_remote_session(host='remotehost', port=22,
                                                             username='user1', password='password1')
     assert remotehost_session.is_active()
 
@@ -75,14 +70,13 @@ def test_active_close_session(docker_env):
 
 
 def test_active_close_session_with_context_manager(docker_env):
-    gateway_ip, gateway_port = docker_env.get_host_ip_port('gateway')
+    gateway_ip, gateway_port = docker_env.get_host_ip_port()
 
     with SSHSession(host=gateway_ip, port=gateway_port,
                     username='user1', password='password1') as gateway_session:
         assert gateway_session.is_active()
 
-        remotehost_ip, remotehost_port = docker_env.get_host_ip_port('remotehost')
-        remotehost_session = gateway_session.get_remote_session(host=tests_util.get_host_ip(), port=remotehost_port,
+        remotehost_session = gateway_session.get_remote_session(host='remotehost', port=22,
                                                                 username='user1', password='password1')
         assert remotehost_session.is_active()
 
@@ -101,7 +95,7 @@ def test_active_close_session_with_context_manager(docker_env):
 
 
 def test_ssh_connection_error(docker_env):
-    gateway_ip, gateway_port = docker_env.get_host_ip_port('gateway')
+    gateway_ip, gateway_port = docker_env.get_host_ip_port()
 
     # open first ssh session to gateway
     gateway_session1 = SSHSession(host=gateway_ip, port=gateway_port,
@@ -125,7 +119,7 @@ def test_ssh_connection_error(docker_env):
 
 
 def test_run_cmd(docker_env, capfd):
-    gateway_ip, gateway_port = docker_env.get_host_ip_port('gateway')
+    gateway_ip, gateway_port = docker_env.get_host_ip_port()
 
     gateway_session = SSHSession(host=gateway_ip, port=gateway_port,
                                  username='user1', password='password1').open()
@@ -134,7 +128,7 @@ def test_run_cmd(docker_env, capfd):
     # basic successful command
     (exit_code, output) = gateway_session.run_cmd('hostname')
     assert exit_code == 0
-    assert output == 'gateway.example.com'
+    assert output == 'gateway'
 
     # successful list command
     gateway_session.run_cmd(['cd /etc', 'ls'])
@@ -165,7 +159,7 @@ def test_run_cmd(docker_env, capfd):
 
 
 def test_run_cmd_sudo(docker_env):
-    gateway_ip, gateway_port = docker_env.get_host_ip_port('gateway')
+    gateway_ip, gateway_port = docker_env.get_host_ip_port()
 
     gateway_session = SSHSession(host=gateway_ip, port=gateway_port,
                                  username='user1', password='password1').open()
@@ -181,7 +175,7 @@ def test_run_cmd_sudo(docker_env):
 
 def test_run_cmd_silent(docker_env, caplog):
     caplog.set_level(logging.DEBUG)
-    gateway_ip, gateway_port = docker_env.get_host_ip_port('gateway')
+    gateway_ip, gateway_port = docker_env.get_host_ip_port()
 
     gateway_session = SSHSession(host=gateway_ip, port=gateway_port,
                                  username='user1', password='password1').open()
@@ -214,7 +208,7 @@ def test_run_cmd_silent(docker_env, caplog):
 
 
 def test_run_cmd_success_exit_code(docker_env):
-    gateway_ip, gateway_port = docker_env.get_host_ip_port('gateway')
+    gateway_ip, gateway_port = docker_env.get_host_ip_port()
 
     gateway_session = SSHSession(host=gateway_ip, port=gateway_port,
                                  username='user1', password='password1').open()
@@ -236,7 +230,7 @@ def test_run_cmd_success_exit_code(docker_env):
 
 
 def test_run_cmd_retry(docker_env):
-    gateway_ip, gateway_port = docker_env.get_host_ip_port('gateway')
+    gateway_ip, gateway_port = docker_env.get_host_ip_port()
 
     gateway_session = SSHSession(host=gateway_ip, port=gateway_port,
                                  username='user1', password='password1').open()
@@ -272,7 +266,7 @@ def test_run_cmd_retry(docker_env):
 def test_run_cmd_interrupt_remote_command(docker_env, monkeypatch, caplog):
     caplog.set_level(logging.DEBUG)
     """Test behavior of run_cmd when user hit Contrl-C while a command is being executed remotely"""
-    gateway_ip, gateway_port = docker_env.get_host_ip_port('gateway')
+    gateway_ip, gateway_port = docker_env.get_host_ip_port()
     gateway_session = SSHSession(host=gateway_ip, port=gateway_port,
                                  username='user1', password='password1').open()
 
@@ -347,15 +341,15 @@ def test_run_cmd_interrupt_remote_command(docker_env, monkeypatch, caplog):
 
 
 def test_get_cmd_output(docker_env):
-    gateway_ip, gateway_port = docker_env.get_host_ip_port('gateway')
+    gateway_ip, gateway_port = docker_env.get_host_ip_port()
     gateway_session = SSHSession(host=gateway_ip, port=gateway_port,
                                  username='user1', password='password1').open()
 
-    assert gateway_session.get_cmd_output('hostname') == 'gateway.example.com'
+    assert gateway_session.get_cmd_output('hostname') == 'gateway'
 
 
 def test_get_exit_code(docker_env):
-    gateway_ip, gateway_port = docker_env.get_host_ip_port('gateway')
+    gateway_ip, gateway_port = docker_env.get_host_ip_port()
 
     gateway_session = SSHSession(host=gateway_ip, port=gateway_port,
                                  username='user1', password='password1').open()
@@ -364,7 +358,7 @@ def test_get_exit_code(docker_env):
 
 
 def test_input_data(docker_env):
-    gateway_ip, gateway_port = docker_env.get_host_ip_port('gateway')
+    gateway_ip, gateway_port = docker_env.get_host_ip_port()
 
     gateway_session = SSHSession(host=gateway_ip, port=gateway_port,
                                  username='user1', password='password1').open()
@@ -383,57 +377,55 @@ def test_input_data(docker_env):
 
 
 def test_get_remote_session(docker_env):
-    gateway_ip, gateway_port = docker_env.get_host_ip_port('gateway')
+    gateway_ip, gateway_port = docker_env.get_host_ip_port()
     gateway_session = SSHSession(host=gateway_ip, port=gateway_port,
                                  username='user1', password='password1').open()
 
-    remotehost_ip, remotehost_port = docker_env.get_host_ip_port('remotehost')
-    remotehost_session = gateway_session.get_remote_session(host=tests_util.get_host_ip(),
-                                                            port=remotehost_port,
+    remotehost_session = gateway_session.get_remote_session(host='remotehost',
+                                                            port=22,
                                                             username='user1',
                                                             password='password1')
 
     # run basic command on remote host
-    assert remotehost_session.get_cmd_output('hostname') == 'remotehost.example.com'
+    assert remotehost_session.get_cmd_output('hostname') == 'remotehost'
 
     # request twice the same remote session just return the existing one
-    assert gateway_session.get_remote_session(host=tests_util.get_host_ip(),
-                                              port=remotehost_port,
+    assert gateway_session.get_remote_session(host='remotehost',
+                                              port=22,
                                               username='user1',
                                               password='password1') == remotehost_session
 
     # request another remote session to another host while an existing one already exists
-    remotehost2_ip, remotehost2_port = docker_env.get_host_ip_port('remotehost2')
-    remotehost2_session = gateway_session.get_remote_session(host=tests_util.get_host_ip(),
-                                                             port=remotehost2_port,
-                                                             username='user1',
-                                                             password='password1')
+    remotehost2_session = remotehost_session.get_remote_session(host='remotehost2',
+                                                                port=22,
+                                                                username='user1',
+                                                                password='password1')
     # check that new session is active
     assert remotehost2_session.is_active()
-    assert remotehost2_session.get_cmd_output('hostname') == 'remotehost2.example.com'
+    assert remotehost2_session.get_cmd_output('hostname') == 'remotehost2'
 
     # check that previous session from gateway is still active
     assert remotehost_session.is_active()
-    assert remotehost_session.get_cmd_output('hostname') == 'remotehost.example.com'
+    assert remotehost_session.get_cmd_output('hostname') == 'remotehost'
 
     # close a remote session and check we can still request ssh session with same parameters
     remotehost2_session.close()
     assert not remotehost2_session.is_active()
-    remotehost2_session = gateway_session.get_remote_session(host=tests_util.get_host_ip(),
-                                                             port=remotehost2_port,
-                                                             username='user1',
-                                                             password='password1')
+    remotehost2_session = remotehost_session.get_remote_session(host='remotehost2',
+                                                                port=22,
+                                                                username='user1',
+                                                                password='password1')
     assert remotehost2_session.is_active()
 
-    # close gateway session and check all child sessions are automatically closed
+    # close gateway session and check all children sessions are automatically closed
     gateway_session.close()
     assert not remotehost_session.is_active()
     assert not remotehost2_session.is_active()
 
     # get remote session from closed session should automatically open gateway session first
     # then return remote session
-    remotehost_session = gateway_session.get_remote_session(host=tests_util.get_host_ip(),
-                                                            port=remotehost_port,
+    remotehost_session = gateway_session.get_remote_session(host='remotehost',
+                                                            port=22,
                                                             username='user1',
                                                             password='password1')
     assert gateway_session.is_active()
@@ -441,13 +433,12 @@ def test_get_remote_session(docker_env):
 
 
 def test_handle_big_json_files(docker_env):
-    gateway_ip, gateway_port = docker_env.get_host_ip_port('gateway')
+    gateway_ip, gateway_port = docker_env.get_host_ip_port()
     gateway_session = SSHSession(host=gateway_ip, port=gateway_port,
                                  username='user1', password='password1').open()
 
-    remotehost_ip, remotehost_port = docker_env.get_host_ip_port('remotehost')
-    remotehost_session = gateway_session.get_remote_session(host=tests_util.get_host_ip(),
-                                                            port=remotehost_port,
+    remotehost_session = gateway_session.get_remote_session(host='remotehost',
+                                                            port=22,
                                                             username='user1',
                                                             password='password1')
     # generate big json file on remotehost
@@ -461,7 +452,7 @@ def test_handle_big_json_files(docker_env):
 
 
 def test_exists(docker_env):
-    gateway_ip, gateway_port = docker_env.get_host_ip_port('gateway')
+    gateway_ip, gateway_port = docker_env.get_host_ip_port()
 
     gateway_session = SSHSession(host=gateway_ip, port=gateway_port,
                                  username='user1', password='password1').open()
@@ -491,13 +482,12 @@ def test_exists(docker_env):
 
 
 def test_put(docker_env):
-    gateway_ip, gateway_port = docker_env.get_host_ip_port('gateway')
+    gateway_ip, gateway_port = docker_env.get_host_ip_port()
     gateway_session = SSHSession(host=gateway_ip, port=gateway_port,
                                  username='user1', password='password1').open()
 
-    remotehost_ip, remotehost_port = docker_env.get_host_ip_port('remotehost')
-    remotehost_session = gateway_session.get_remote_session(host=tests_util.get_host_ip(),
-                                                            port=remotehost_port,
+    remotehost_session = gateway_session.get_remote_session(host='remotehost',
+                                                            port=22,
                                                             username='user1',
                                                             password='password1')
     # exception is raised when local file does not exist
@@ -534,13 +524,12 @@ def test_put(docker_env):
 
 
 def test_get(docker_env):
-    gateway_ip, gateway_port = docker_env.get_host_ip_port('gateway')
+    gateway_ip, gateway_port = docker_env.get_host_ip_port()
     gateway_session = SSHSession(host=gateway_ip, port=gateway_port,
                                  username='user1', password='password1').open()
 
-    remotehost_ip, remotehost_port = docker_env.get_host_ip_port('remotehost')
-    remotehost_session = gateway_session.get_remote_session(host=tests_util.get_host_ip(),
-                                                            port=remotehost_port,
+    remotehost_session = gateway_session.get_remote_session(host='remotehost',
+                                                            port=22,
                                                             username='user1',
                                                             password='password1')
 
@@ -576,13 +565,12 @@ def test_get(docker_env):
 
 
 def test_file(docker_env):
-    gateway_ip, gateway_port = docker_env.get_host_ip_port('gateway')
+    gateway_ip, gateway_port = docker_env.get_host_ip_port()
     gateway_session = SSHSession(host=gateway_ip, port=gateway_port,
                                  username='user1', password='password1').open()
 
-    remotehost_ip, remotehost_port = docker_env.get_host_ip_port('remotehost')
-    remotehost_session = gateway_session.get_remote_session(host=tests_util.get_host_ip(),
-                                                            port=remotehost_port,
+    remotehost_session = gateway_session.get_remote_session(host='remotehost',
+                                                            port=22,
                                                             username='user1',
                                                             password='password1')
     file_content = json.dumps(tests_util.create_random_json())

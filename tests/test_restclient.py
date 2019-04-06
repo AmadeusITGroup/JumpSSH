@@ -4,6 +4,7 @@ Some unit tests for RestSshClient.
 from __future__ import print_function
 import json
 import logging
+import os
 import sys
 import tempfile
 
@@ -16,24 +17,22 @@ from . import util as tests_util
 logging.basicConfig()
 
 
-@pytest.fixture(scope="function")
+REMOTE_HOST_IP_PORT = 'remotehost:5000'
+
+
+@pytest.fixture(scope="module")
 def docker_env():
-    my_docker_env = tests_util.DockerEnv()
-    my_docker_env.start_host('image_sshd', 'gateway')
-    my_docker_env.start_host('image_restserver', 'remotehost')
-    yield my_docker_env  # provide the fixture value
-    print("teardown docker_env")
-    my_docker_env.clean()
+    docker_compose_env = tests_util.DockerEnv(os.path.join("docker", "docker-compose_restclient.yaml"))
+    yield docker_compose_env
+    docker_compose_env.clean()
 
 
 def test_init_from_session(docker_env):
     gateway_ip, gateway_port = docker_env.get_host_ip_port('gateway')
     gateway_session = SSHSession(host=gateway_ip, port=gateway_port, username='user1', password='password1')
 
-    remotehost_ip, remotehost_port = docker_env.get_host_ip_port('remotehost', private_port=5000)
-
     with RestSshClient(gateway_session) as rest_client:
-        http_response = rest_client.get('http://%s:%s/' % (tests_util.get_host_ip(), remotehost_port))
+        http_response = rest_client.get('http://' + REMOTE_HOST_IP_PORT)
 
     assert http_response.status_code == 200
     assert http_response.text == 'Hello, World!'
@@ -41,11 +40,10 @@ def test_init_from_session(docker_env):
 
 def test_init_from_host_ip(docker_env):
     gateway_ip, gateway_port = docker_env.get_host_ip_port('gateway')
-    remotehost_ip, remotehost_port = docker_env.get_host_ip_port('remotehost', private_port=5000)
 
     with RestSshClient(host=gateway_ip, port=gateway_port,
                        username='user1', password='password1') as rest_client:
-        http_response = rest_client.get('http://%s:%s/' % (tests_util.get_host_ip(), remotehost_port))
+        http_response = rest_client.get('http://' + REMOTE_HOST_IP_PORT)
 
     assert http_response.status_code == 200
     assert http_response.text == 'Hello, World!'
@@ -55,7 +53,6 @@ def test_request(docker_env):
     gateway_ip, gateway_port = docker_env.get_host_ip_port('gateway')
     gateway_session = SSHSession(host=gateway_ip, port=gateway_port,
                                  username='user1', password='password1').open()
-    remotehost_ip, remotehost_port = docker_env.get_host_ip_port('remotehost', private_port=5000)
     rest_client = RestSshClient(gateway_session)
 
     # check not properly formatted uri raise exception
@@ -66,7 +63,7 @@ def test_request(docker_env):
     # test header only
     http_response = rest_client.request(
         'GET',
-        'http://%s:%s/' % (tests_util.get_host_ip(), remotehost_port),
+        'http://' + REMOTE_HOST_IP_PORT,
         document_info_only=True)
     assert http_response.status_code == 200
     assert len(http_response.text) == 0
@@ -75,7 +72,7 @@ def test_request(docker_env):
     parameters = {'param1': 'value1', 'param2': 'value2'}
     http_response = rest_client.request(
         'GET',
-        'http://%s:%s/echo-parameters' % (tests_util.get_host_ip(), remotehost_port),
+        'http://%s/echo-parameters' % REMOTE_HOST_IP_PORT,
         params=parameters)
     assert http_response.status_code == 200
     # value is a list as each parameter can be specified multiple times with different values
@@ -86,7 +83,7 @@ def test_request(docker_env):
 
     # test headers are properly handled
     http_response = rest_client.request('GET',
-                                        'http://%s:%s/echo-headers' % (tests_util.get_host_ip(), remotehost_port),
+                                        'http://%s/echo-headers' % REMOTE_HOST_IP_PORT,
                                         headers={'My-Header': 'My-Value'})
     assert http_response.status_code == 200
     assert 'My-Header' in http_response.json()
@@ -97,10 +94,9 @@ def test_methods(docker_env):
     gateway_ip, gateway_port = docker_env.get_host_ip_port('gateway')
     gateway_session = SSHSession(host=gateway_ip, port=gateway_port,
                                  username='user1', password='password1').open()
-    remotehost_ip, remotehost_port = docker_env.get_host_ip_port('remotehost', private_port=5000)
     rest_client = RestSshClient(gateway_session)
 
-    uri = 'http://%s:%s/echo-method' % (tests_util.get_host_ip(), remotehost_port)
+    uri = 'http://%s/echo-method' % REMOTE_HOST_IP_PORT
 
     # check proper http method is used for each function
     header_name = 'Request-Method'
@@ -120,10 +116,9 @@ def test_basic_auth(docker_env):
     gateway_ip, gateway_port = docker_env.get_host_ip_port('gateway')
     gateway_session = SSHSession(host=gateway_ip, port=gateway_port,
                                  username='user1', password='password1').open()
-    remotehost_ip, remotehost_port = docker_env.get_host_ip_port('remotehost', private_port=5000)
     rest_client = RestSshClient(gateway_session)
 
-    uri = 'http://%s:%s/authentication-required' % (tests_util.get_host_ip(), remotehost_port)
+    uri = 'http://%s/authentication-required' % REMOTE_HOST_IP_PORT
 
     # wrong auth param format
     with pytest.raises(exception.RestClientError) as exc_info:
@@ -145,10 +140,9 @@ def test_request_with_body(docker_env):
     gateway_ip, gateway_port = docker_env.get_host_ip_port('gateway')
     gateway_session = SSHSession(host=gateway_ip, port=gateway_port,
                                  username='user1', password='password1').open()
-    remotehost_ip, remotehost_port = docker_env.get_host_ip_port('remotehost', private_port=5000)
     rest_client = RestSshClient(gateway_session)
 
-    uri = 'http://%s:%s/echo-body' % (tests_util.get_host_ip(), remotehost_port)
+    uri = 'http://%s/echo-body' % REMOTE_HOST_IP_PORT
 
     json_file_content = tests_util.create_random_json(5)
 
@@ -192,10 +186,9 @@ def test_response_methods(docker_env):
     gateway_ip, gateway_port = docker_env.get_host_ip_port('gateway')
     gateway_session = SSHSession(host=gateway_ip, port=gateway_port,
                                  username='user1', password='password1').open()
-    remotehost_ip, remotehost_port = docker_env.get_host_ip_port('remotehost', private_port=5000)
     rest_client = RestSshClient(gateway_session)
 
-    endpoint = 'http://%s:%s' % (tests_util.get_host_ip(), remotehost_port)
+    endpoint = 'http://%s' % REMOTE_HOST_IP_PORT
 
     # check_for_success
     with pytest.raises(exception.RestClientError):
