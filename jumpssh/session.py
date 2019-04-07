@@ -603,7 +603,7 @@ class SSHSession(object):
             remote_path,
             local_path,
             use_sudo=False,
-            username=None
+            username=None,
             ):
         """Download a file from the remote host
 
@@ -638,9 +638,9 @@ class SSHSession(object):
 
         sftp_client = self.get_sftp_client()
         try:
-            with open(local_path, mode='w') as local_file:
-                with sftp_client.file(copy_path) as remote_file:
-                    local_file.write(remote_file.read().decode('utf-8'))
+            with sftp_client.file(copy_path) as remote_file:
+                with open(local_path, mode='wb') as local_file:
+                    local_file.write(remote_file.read())
         finally:
             if use_sudo:
                 # cleanup temporary file
