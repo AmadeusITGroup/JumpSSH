@@ -275,9 +275,8 @@ class SSHSession(object):
             # need to run full command with shell to support shell builtins commands (source, ...)
             my_cmd = 'sudo su - %s -c "%s"' % (user, cmd.replace('"', '\\"'))
 
-        # check session is still active before running a command, else try to open it
-        if not self.is_active():
-            self.open()
+        # open session if not already the case
+        self.open()
 
         # conceal text from command to be logged if requested with silent parameter
         cmd_for_log = cmd
@@ -447,9 +446,10 @@ class SSHSession(object):
             port=SSH_PORT,
             password=None,
             retry_interval=10,
-            compress=False
+            compress=False,
+            **kwargs
     ):
-        """ Establish connection with a remote host from current session
+        r""" Establish connection with a remote host from current session
 
         :param host: name or ip of the remote host
         :param username: user to be used for remote ssh session
@@ -459,6 +459,9 @@ class SSHSession(object):
         :param password: password to be used for authentication with remote host
         :param retry_interval: number of seconds between each retry
         :param compress: set to True to turn on compression for this session
+        :param \**kwargs: any parameter taken by
+            :meth:`paramiko.client.SSHClient.connect <paramiko.client.SSHClient.connect>`
+            and not already explicitly covered by `SSHSession`
         :return: session object of the remote host
         :rtype: SSHSession
 
@@ -480,8 +483,7 @@ class SSHSession(object):
             >>> remote_session = ssh_session.get_remote_session('remote.example.com', retry=-1)
         """
         # check session is still active before using it as a jump server, else try to open it
-        if not self.is_active():
-            self.open()
+        self.open()
 
         # get user to be used for remote ssh session (default : same user than parent session)
         user = self.username
@@ -507,8 +509,9 @@ class SSHSession(object):
                                     private_key_file=private_key_file,
                                     port=port,
                                     password=password,
-                                    compress=compress).open(retry=retry,
-                                                            retry_interval=retry_interval)
+                                    compress=compress,
+                                    **kwargs).open(retry=retry,
+                                                   retry_interval=retry_interval)
 
         # keep reference to opened session, to be able to reuse it later
         self.ssh_remote_sessions[session_key] = remote_session
