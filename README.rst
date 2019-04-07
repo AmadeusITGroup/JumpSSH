@@ -23,7 +23,6 @@ JumpSSH
 
 :JumpSSH:          Python module to run commands on remote servers
 :Copyright:        Copyright (c) 2017 Amadeus sas
-:Maintainer:       Thibaud Castaing <thibaud.castaing@amadeus.com>
 :License:          `MIT <https://github.com/AmadeusITGroup/JumpSSH/blob/master/LICENSE>`_
 :Documentation:    https://jumpssh.readthedocs.io
 :Development:      https://github.com/AmadeusITGroup/JumpSSH

@@ -62,7 +62,8 @@ setup(
         'pytest-runner'
     ],
     tests_require=[
-        'docker-py',
+        'docker',
+        'docker-compose',
         'pytest',
         'pytest-catchlog',
         'mock'
