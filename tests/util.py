@@ -57,3 +57,7 @@ def create_random_json(size=1000):
         random_value = jumpssh_util.id_generator(size=100)
         dummy_json[random_key] = random_value
     return dummy_json
+
+
+def create_random_binary(size_kb=1):
+    return os.urandom(size_kb * 1024)

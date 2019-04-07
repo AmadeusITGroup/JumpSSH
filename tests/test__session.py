@@ -523,7 +523,14 @@ def test_put(docker_env):
         os.remove(local_path)
 
 
-def test_get(docker_env):
+@pytest.mark.parametrize(
+    "file_name,file_content",
+    [
+        ('remote_file_text', json.dumps(tests_util.create_random_json(size=10))),
+        ('remote_file_binary', tests_util.create_random_binary()),
+    ]
+)
+def test_get(docker_env, file_name, file_content):
     gateway_ip, gateway_port = docker_env.get_host_ip_port()
     gateway_session = SSHSession(host=gateway_ip, port=gateway_port,
                                  username='user1', password='password1').open()
@@ -534,8 +541,8 @@ def test_get(docker_env):
                                                             password='password1')
 
     # create random file on remote host and ensure it is properly there
-    remote_path = "remote_file"
-    remotehost_session.file(remote_path=remote_path, content=json.dumps(tests_util.create_random_json()))
+    remote_path = file_name
+    remotehost_session.file(remote_path=remote_path, content=file_content)
     assert remotehost_session.exists(remote_path)
 
     # download that file in local folder
