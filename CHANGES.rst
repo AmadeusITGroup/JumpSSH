@@ -1,3 +1,9 @@
+1.6.0 (04/08/2019)
+------------------
+- [Bug] :issue:`51`: 'get' file was failing if the remote file is binary. Thanks to :user:`pshaobow` for the report.
+- [Feature]: Ability to use any parameter of `paramiko.client.SSHClient.connect` in `get_remote_session`, was forgotten during implementation of :issue:`43`.
+- [Improvement]: tests migrated to docker-compose to setup docker environment
+
 1.5.1 (01/14/2019)
 ------------------
 - [Feature] :issue:`43`: Ability to use any parameter of paramiko.client.SSHClient.connect in SSHSession.
