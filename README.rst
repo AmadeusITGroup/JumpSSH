@@ -29,7 +29,7 @@ JumpSSH
 
 What
 ----
-`JumpSSH` is a module for Python 2.7+/3.4+ that can be used to run commands on remote servers through a gateway.
+`JumpSSH` is a module for Python 2.7+/3.5+ that can be used to run commands on remote servers through a gateway.
 
 It is based on `paramiko library <http://www.paramiko.org>`_.
 It provides the ability to execute commands on hosts that are not directly accessible but only through one or
