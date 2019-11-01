@@ -30,14 +30,12 @@ python:
   - 3.5
   - 3.6
   - 3.7
-  - 3.8-dev
+  - 3.8
   - pypy
   - pypy3.5
   - pypy3
 
 matrix:
-  allow_failures:
-    - python: "3.8-dev"
   include:
     - python: 3.7
       env: TOX_ENV=flake8
