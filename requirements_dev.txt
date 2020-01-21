@@ -2,4 +2,4 @@ paramiko==2.7.1
 pytest>=3.0.4
 pytest-cov>=2.4.0
 mock>=2.0.0
-docker-compose==1.25.0
+docker-compose==1.25.2
