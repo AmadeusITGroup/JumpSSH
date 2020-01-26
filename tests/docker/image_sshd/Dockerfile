@@ -21,7 +21,10 @@ RUN \
   chown -R user2:user2 /home/user2
 
 # give sudo permission to user1
-RUN echo "user1	 ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers.d/my_sudoers
+RUN echo "user1	 ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers.d/my_sudoers && \
+  # workaround for issue when using sudo => sudo: setrlimit(RLIMIT_CORE): Operation not permitted
+  # https://bugzilla.redhat.com/show_bug.cgi?id=1773148
+  echo "Set disable_coredump false" > /etc/sudo.conf
 
 RUN ssh-keygen -A
 
