@@ -141,7 +141,7 @@ To run the test suite, clone the repository and run:
 
 .. code:: bash
 
-    $ python setup.py test
+    $ pytest -sv tests/
 
 or simply:
 
