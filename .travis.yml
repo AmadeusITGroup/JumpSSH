@@ -1,11 +1,4 @@
-# required for sonar (https://docs.travis-ci.com/user/sonarqube/) and py37
-dist: xenial
-
-# required for docker and sonar
-sudo: required
-
 language: python
-
 cache: pip
 
 services:
@@ -34,11 +27,11 @@ python:
   - pypy
   - pypy3
 
-matrix:
+jobs:
   include:
-    - python: 3.7
+    - python: 3.8
       env: TOX_ENV=flake8
-    - python: 3.7
+    - python: 3.8
       env: TOX_ENV=docs
 
 install:
@@ -59,12 +52,12 @@ after_success:
 deploy:
   # deploys to PyPI on any tagged commit
   - provider: pypi
-    user: tcastaing
+    username: "__token__"
     password:
-      secure: "pZ523F3xk/yR29d429sleC72r4K0jo7KydOttvy/4708J8kMPFqmk7nrGmlcSUY3/RQ4mLP5ylTF507Hf4WxU7H/DbfJEc4bgctgwtXaEMwyGxc2x1lQpBf8ShqfFbCVFhwlR/ZBD3jeBXOzRFJ5v5eIhruiaE7QomYwjDtKVIAI1xPj2taM43r+ggQbVO8QBGp2ZdrQWZiN15a/hdjAUT4vVcsSvEEyQZE3yUslP2B7tFOTrAwBFRTfu2mkhy5eU7qkGcpYu9DHSE5dLf+XlbX3fz8ZUQBFDq16io3KrZavyUBnSeWCpkyqy867k+cAHbKXouNpGcuZRU2iyZVi5yKBN1iTFTiN8OmL+mFN9S2lepY2AyZ+9x4sv4SxAMJxlz36a5R7KsZgzPBHWvFdnxnertSNWOQm2fnom6B+msGWRxLnXpOQ+iHTa5JzCnB6Zy9vrvKliPzcmgu2Wpzs4n+8DbUAzDp09IZd0OOW/ZSGlhnp/YTA2W5zlmX60oGjljEe6MnxjJ+5p1GXY9D0yyl1nX1J8Ddv9IPia9EKa8Olfw5YNyLdOYzxqT7luGbLcU5ivWp3E7UwtGS4RnUNPcBBvR/7Lhpm2lI+ObFLRH0g+CEV3NXLc/TB3RKk7Z+t56o5jz0huqo7InZUkGnkF3zkLqxJQj/dPatxKKlkRV0="
+      secure: "i0WSXHnHn9S+N3+GYqQqJyTJdA9T7eKkVLJmacHMyVnseinD/1JHSjWcxUx9otFSn9nNo/Nhs67PGTyPLWPOlP4JfC7nmRUC9EvIHputRurkvzD7H3Gv0AzMej18LZof/dMoxioX5vMwjfUmjvUKJ3wMZeAJwtUIB9NJlwWC/O2SrjfhRD/Wv0JnmP49h9GUsbkbtGTki7810fOZBNeo1XPy6oSVnTErPKafuMIJs4EsQ8e4xiDWmlXRAs9zIOFdJ83l/RsEHw3o/8SFhvGfI/Zc4o78sU7Gw367mT/qrS5u1Qg8BMHjHaalGcD09fH/aCfPJ/Yww/gjAFrfcQgZeLp7AUwXMF1uGcIs/YKxihKRsr4QugMzjVEDJG2+RMdNM3YQ4DUd0D9dIFqYm7xEV4Emc+5kCrElPZwShL5QPr0fxJhhjnDCw+T7daQpP98vZ27gLXrE8hW/BwfDemmr3+ZYM55+hSoqK3hzv85V/BgN1f26u4NonzHXmINB3sQNGPT2apuPaZkBS3sBxYCf5TBZPiShEkX/cooyZZd1r7RwpubD/j45lLMLy+r/L9P+PKj+6dLh7SLZxFVExarnZiEcDC2Sgjdnv/v7XDGoLQLCNQsJJFC8X9rxMSOQVZu1j94yMTkuA6Zg7FTuHK5CDiIwoybMrztEUPwZJ2lv3j0="
+    distributions: sdist bdist_wheel
     on:
       tags: true
-      distributions: sdist bdist_wheel
       repo: AmadeusITGroup/JumpSSH
     # Upload artifacts only once
     skip_existing: true

@@ -57,15 +57,4 @@ setup(
     install_requires=[
         'paramiko'
     ],
-    test_suite='tests',
-    setup_requires=[
-        'pytest-runner'
-    ],
-    tests_require=[
-        'docker',
-        'docker-compose',
-        'pytest',
-        'pytest-catchlog',
-        'mock'
-    ]
 )

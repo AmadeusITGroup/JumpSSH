@@ -1,3 +1,8 @@
+1.6.2 (03/12/2020)
+------------------
+- [Improvement]: remove pytest-runner from setup_requires as this is deprecated for security reasons, see https://github.com/pytest-dev/pytest-runner
+- [Improvement]: use only fixed test dependencies in requirements_dev.txt
+
 1.6.1 (04/08/2019)
 ------------------
 - [Bug] :issue:`51`: 'get' file was failing if the remote file is binary. Thanks to :user:`pshaobow` for the report.
