@@ -1,4 +1,4 @@
-1.6.2 (03/12/2020)
+1.6.3 (03/12/2020)
 ------------------
 - [Improvement]: remove pytest-runner from setup_requires as this is deprecated for security reasons, see https://github.com/pytest-dev/pytest-runner
 - [Improvement]: use only fixed test dependencies in requirements_dev.txt
