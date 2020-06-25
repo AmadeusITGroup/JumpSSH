@@ -51,7 +51,8 @@ def secret_page():
 
 @app.route('/echo-parameters', methods=['GET', 'POST'])
 def echo_parameters():
-    return json.dumps(dict(request.args))
+    # use `flat=False` to have all values returned as lists for a given key.
+    return json.dumps(request.args.to_dict(flat=False))
 
 
 @app.route('/echo-method', methods=['OPTIONS', 'GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE'])
