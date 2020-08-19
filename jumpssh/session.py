@@ -195,7 +195,10 @@ class SSHSession(object):
             for remote_session in self.ssh_remote_sessions.values():
                 remote_session.close()
         if hasattr(self, 'ssh_client') and self.is_active():
-            logger.debug("Closing connection to '%s:%s'..." % (self.host, self.port))
+            # fix garbage collection order issue when close is called by __del__
+            # => https://github.com/AmadeusITGroup/JumpSSH/issues/109
+            if globals().get("logger"):
+                logger.debug("Closing connection to '%s:%s'..." % (self.host, self.port))
             self.ssh_client.close()
             # clear local host keys as they may not be valid for next connection
             self.ssh_client.get_host_keys().clear()
