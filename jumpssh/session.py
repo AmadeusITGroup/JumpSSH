@@ -35,6 +35,7 @@ class SSHSession(object):
         This parameter is a class **instance** of type
         :class:`paramiko.client.MissingHostKeyPolicy <paramiko.client.MissingHostKeyPolicy>`, not a **class** itself
     :param compress: set to True to turn on compression for this session
+    :param timeout: optional timeout opening SSH session, default 3600s (1h)
     :param \**kwargs: any parameter taken by
         :meth:`paramiko.client.SSHClient.connect <paramiko.client.SSHClient.connect>`
         and not already explicitly covered by `SSHSession`
@@ -54,6 +55,7 @@ class SSHSession(object):
             password=None,
             missing_host_key_policy=None,
             compress=False,
+            timeout=None,
             **kwargs
     ):
         self.host = host
@@ -64,6 +66,7 @@ class SSHSession(object):
         self.proxy_transport = proxy_transport
         self.private_key_file = private_key_file
         self.compress = compress
+        self.timeout = timeout
 
         # get input key/value parameters from user, they will be given to paramiko.client.SSHClient.connect
         self.extra_parameters = kwargs
@@ -134,16 +137,19 @@ class SSHSession(object):
                 if self.proxy_transport:
                     # open a `direct-tcpip` channel passing
                     # the destination hostname:port and the local hostname:port
-                    dest_addr = (self.host, self.port)
-                    local_addr = ('localhost', SSH_PORT)
-                    ssh_channel = self.proxy_transport.open_channel("direct-tcpip", dest_addr, local_addr)
                     hostname = 'localhost'
                     port = SSH_PORT
+                    ssh_channel = self.proxy_transport.open_channel(
+                        kind="direct-tcpip",
+                        dest_addr=(self.host, self.port),
+                        src_addr=(hostname, port),
+                        timeout=self.timeout,
+                    )
                 # else it will be a direct ssh session from local machine
                 else:
-                    ssh_channel = None
                     hostname = self.host
                     port = self.port
+                    ssh_channel = None
 
                 # update with existing default values from SSHSession
                 self.extra_parameters.update({
@@ -154,6 +160,7 @@ class SSHSession(object):
                     'key_filename': self.private_key_file,
                     'password': self.password,
                     'sock': ssh_channel,
+                    'timeout': self.timeout,
                 })
 
                 # connect to the host
@@ -450,6 +457,7 @@ class SSHSession(object):
             password=None,
             retry_interval=10,
             compress=False,
+            timeout=None,
             **kwargs
     ):
         r""" Establish connection with a remote host from current session
@@ -462,6 +470,7 @@ class SSHSession(object):
         :param password: password to be used for authentication with remote host
         :param retry_interval: number of seconds between each retry
         :param compress: set to True to turn on compression for this session
+        :param timeout: optional timeout opening remote session, default 3600s (1h)
         :param \**kwargs: any parameter taken by
             :meth:`paramiko.client.SSHClient.connect <paramiko.client.SSHClient.connect>`
             and not already explicitly covered by `SSHSession`
@@ -513,6 +522,7 @@ class SSHSession(object):
                                     port=port,
                                     password=password,
                                     compress=compress,
+                                    timeout=timeout,
                                     **kwargs).open(retry=retry,
                                                    retry_interval=retry_interval)
 
