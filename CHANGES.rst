@@ -1,6 +1,7 @@
 Next release
 ---------------
 - [Bug] :issue:`109`: Fix automated session closure handled by python garbage collection
+- [Bug] :issue:`120`: Fix get_remote_session not respecting 'timeout' parameter
 
 1.6.3 (03/12/2020)
 ------------------
