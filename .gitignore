@@ -8,6 +8,7 @@ jumpssh.egg-info/
 docs/_build/
 docs/html
 .idea/
+.vscode/
 .eggs/
 .pyenv*
 venv*

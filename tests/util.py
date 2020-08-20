@@ -1,18 +1,30 @@
 from __future__ import print_function
 import os
+try:
+    from pathlib import Path
+except ImportError:
+    from pathlib2 import Path
 import random
 
 from compose.cli.main import TopLevelCommand, project_from_options
 
 from jumpssh import util as jumpssh_util
 
+TESTS_DIR = Path(__file__).parent
+
 
 class DockerEnv(object):
-    def __init__(self, docker_compose_file):
+    def __init__(self, docker_compose_file, options=None):
         self.docker_compose_file = docker_compose_file
-        project = project_from_options(os.path.dirname(__file__), self.options)
+
+        # build docker options with default ones + input overrides
+        dockerenv_options = self.options
+        if options:
+            dockerenv_options.update(options)
+
+        project = project_from_options(str(TESTS_DIR), dockerenv_options)
         self.cmd = TopLevelCommand(project)
-        self.cmd.up(self.options)
+        self.cmd.up(dockerenv_options)
 
     @property
     def options(self):
