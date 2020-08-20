@@ -3,8 +3,10 @@ Some unit tests for RestSshClient.
 """
 from __future__ import print_function
 import json
-import logging
-import os
+try:
+    from pathlib import Path
+except ImportError:
+    from pathlib2 import Path
 import sys
 import tempfile
 
@@ -15,17 +17,13 @@ from jumpssh import exception, SSHSession, RestSshClient
 
 from . import util as tests_util
 
-logging.basicConfig()
-
 
 REMOTE_HOST_IP_PORT = 'remotehost:5000'
 
 
 @pytest.fixture(scope="module")
-def docker_env():
-    docker_compose_env = tests_util.DockerEnv(os.path.join("docker", "docker-compose_restclient.yaml"))
-    yield docker_compose_env
-    docker_compose_env.clean()
+def docker_compose_file():
+    yield Path("docker-compose_restclient.yaml")
 
 
 @flaky

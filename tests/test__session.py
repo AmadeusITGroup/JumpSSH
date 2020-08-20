@@ -7,8 +7,10 @@ import json
 import logging
 try:
     import unittest.mock as mock
+    from pathlib import Path
 except ImportError:
     import mock
+    from pathlib2 import Path
 import os
 import socket
 import sys
@@ -22,14 +24,9 @@ from jumpssh import util, exception, SSHSession
 from . import util as tests_util
 
 
-logging.basicConfig()
-
-
 @pytest.fixture(scope="module")
-def docker_env():
-    docker_compose_env = tests_util.DockerEnv(os.path.join("docker", "docker-compose_session.yaml"))
-    yield docker_compose_env
-    docker_compose_env.clean()
+def docker_compose_file():
+    yield Path("docker-compose_session.yaml")
 
 
 def test_unknown_host():
