@@ -308,8 +308,10 @@ class SSHSession(object):
             # raise error rather than blocking the call
             channel.setblocking(0)
 
-            # Forward local agent
-            paramiko.agent.AgentRequestHandler(channel)
+            # Forward local agent if it is running and has some keys
+            # (If no agent is running, `get_keys` will return an empty tuple)
+            if paramiko.agent.Agent().get_keys():
+                paramiko.agent.AgentRequestHandler(channel)
             # Commands executed after this point will see the forwarded agent on the remote end.
 
             channel.set_combine_stderr(True)
