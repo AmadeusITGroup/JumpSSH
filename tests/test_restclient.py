@@ -8,6 +8,7 @@ import os
 import sys
 import tempfile
 
+from flaky import flaky
 import pytest
 
 from jumpssh import exception, SSHSession, RestSshClient
@@ -27,6 +28,7 @@ def docker_env():
     docker_compose_env.clean()
 
 
+@flaky
 def test_init_from_session(docker_env):
     gateway_ip, gateway_port = docker_env.get_host_ip_port('gateway')
     gateway_session = SSHSession(host=gateway_ip, port=gateway_port, username='user1', password='password1')
