@@ -1,10 +1,9 @@
-Next release
----------------
+1.6.4 (08/24/2020)
+------------------
 - [Bug] :issue:`109`: Fix automated session closure handled by python garbage collection
 - [Bug] :issue:`120`: Fix get_remote_session not respecting 'timeout' parameter
 - [Bug] :issue:`139`: Fix run_cmd raising AuthenticationException if no agent is running
 - [Improvement][Tests]: use flaky package to automatically rerun flaky tests
-
 
 1.6.3 (03/12/2020)
 ------------------
