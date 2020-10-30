@@ -16,7 +16,6 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-import json
 import os
 import sys
 
@@ -25,9 +24,9 @@ ROOT_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)))
 sys.path.insert(0, os.path.abspath(ROOT_DIR))
 
 # get package information from config file
-config_file_path = os.path.join(ROOT_DIR, 'jumpssh', 'pkg_info.json')
-with open(config_file_path) as fp:
-    _pkg_info = json.load(fp)
+_pkg_info = {}
+with open(os.path.join(ROOT_DIR, 'jumpssh', '__version__.py')) as version_file:
+    exec(version_file.read(), _pkg_info)
 
 
 # -- General configuration ------------------------------------------------
@@ -61,14 +60,14 @@ master_doc = 'index'
 # General information about the project.
 project = u'jumpssh'
 copyright = u'(c) 2017 Amadeus sas'
-author = _pkg_info['author']
+author = _pkg_info['__author__']
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 #
 # The short X.Y version.
-version = _pkg_info['version']
+version = _pkg_info['__version__']
 
 # The full version, including alpha/beta/rc tags.
 release = version

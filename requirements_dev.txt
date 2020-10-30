@@ -8,3 +8,6 @@ docker==4.3.1
 docker-compose==1.27.2;python_version>="3.5"
 docker-compose==1.26.2;python_version<"3.5"
 pathlib2==2.3.5;python_version<"3.4"
+
+# indirect dependencies
+pyrsistent<0.17.0;python_version<"3.5"

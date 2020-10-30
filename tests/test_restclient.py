@@ -10,7 +10,6 @@ except ImportError:
 import sys
 import tempfile
 
-from flaky import flaky
 import pytest
 
 from jumpssh import exception, SSHSession, RestSshClient
@@ -26,7 +25,7 @@ def docker_compose_file():
     yield Path("docker-compose_restclient.yaml")
 
 
-@flaky
+@pytest.mark.flaky
 def test_init_from_session(docker_env):
     gateway_ip, gateway_port = docker_env.get_host_ip_port('gateway')
     gateway_session = SSHSession(host=gateway_ip, port=gateway_port, username='user1', password='password1')
@@ -38,6 +37,7 @@ def test_init_from_session(docker_env):
     assert http_response.text == 'Hello, World!'
 
 
+@pytest.mark.flaky
 def test_init_from_host_ip(docker_env):
     gateway_ip, gateway_port = docker_env.get_host_ip_port('gateway')
 
