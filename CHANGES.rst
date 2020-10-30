@@ -1,3 +1,7 @@
+1.6.5 (11/03/2020)
+------------------
+- [Bug] :issue:`152`: Remove pkg_info.json file and replace it with python file to avoid access issue at runtime
+
 1.6.4 (08/24/2020)
 ------------------
 - [Bug] :issue:`109`: Fix automated session closure handled by python garbage collection

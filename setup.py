@@ -1,27 +1,32 @@
 from __future__ import print_function
-import json
+import os
 from setuptools import setup
 
-with open('jumpssh/pkg_info.json') as fp:
-    _pkg_info = json.load(fp)
+ROOT = os.path.dirname(__file__)
 
-with open('README.rst') as readme_file:
+# retrieve package information
+about = {}
+with open(os.path.join(ROOT, 'jumpssh', '__version__.py')) as version_file:
+    exec(version_file.read(), about)
+
+with open(os.path.join(ROOT, 'README.rst')) as readme_file:
     readme = readme_file.read()
 
 setup(
-    name="jumpssh",
-    version=_pkg_info['version'],
+    name=about['__title__'],
+    version=about['__version__'],
 
-    author='Amadeus IT Group',
-    author_email='opensource@amadeus.com',
-    maintainer='Thibaud Castaing',
-    maintainer_email='t-cas@users.noreply.github.com',
+    author=about['__author__'],
+    author_email=about['__author_email__'],
+    maintainer=about['__maintainer__'],
+    maintainer_email=about['__maintainer_email__'],
 
-    description="Python library for remote ssh calls through a gateway.",
+    description=about['__description__'],
     long_description=readme,
-    url="https://github.com/AmadeusITGroup/JumpSSH",
-    download_url="https://pypi.python.org/pypi/jumpssh",
-    license='MIT license',
+    # long_description_content_type='text/markdown',
+    url=about['__url__'],
+    download_url=about['__download_url__'],
+    license=about['__license__'],
     classifiers=[
         'Development Status :: 5 - Production/Stable',
 
@@ -51,7 +56,6 @@ setup(
     ],
 
     packages=['jumpssh'],
-    package_data={'': ['pkg_info.json']},
     platforms='Unix; MacOS X',
 
     install_requires=[
