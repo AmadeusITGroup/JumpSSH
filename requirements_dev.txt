@@ -5,7 +5,7 @@ pytest-cov==2.10.1
 flaky==3.7.0
 mock==3.0.5;python_version<"3.6"
 docker==4.4.4
-docker-compose==1.27.2;python_version>="3.5"
+docker-compose==1.29.1;python_version>="3.5"
 docker-compose==1.26.2;python_version<"3.5"
 pathlib2==2.3.5;python_version<"3.4"
 
