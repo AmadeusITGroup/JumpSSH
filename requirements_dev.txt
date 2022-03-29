@@ -1,4 +1,4 @@
-paramiko==2.7.2
+paramiko==2.10.1
 pytest==6.0.1;python_version>="3.5"
 pytest==4.6.9;python_version<"3.5"
 pytest-cov==2.10.1
